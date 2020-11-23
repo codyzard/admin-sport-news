@@ -1,7 +1,25 @@
+import { isEmpty } from "lodash";
 import React, { Component } from "react";
-import Footer from '../CommonPages/Footer'
+import Footer from "../CommonPages/Footer";
 class Homepage extends Component {
+  state = { access_token: null, user: null };
+  componentDidMount() {
+    var access_token = JSON.parse(localStorage.getItem("access_token"));
+    var user = JSON.parse(localStorage.getItem("user"));
+    if(isEmpty(access_token)){
+      this.props.history.push('/login')
+    }
+    else{
+      if (access_token && user) {
+        this.setState({
+          access_token: access_token,
+          user: user,
+        });
+      }
+    }
+  }
   render() {
+    var { access_token } = this.state;
     return (
       <div className="dashboard-wrapper">
         <div className="dashboard-ecommerce">
@@ -319,13 +337,13 @@ class Homepage extends Component {
                   <div className="card">
                     <div className="card-header">
                       {/* <div class="float-right">
-                                              <select class="custom-select">
-                                                  <option selected>Today</option>
-                                                  <option value="1">Weekly</option>
-                                                  <option value="2">Monthly</option>
-                                                  <option value="3">Yearly</option>
-                                              </select>
-                                          </div> */}
+                                            <select class="custom-select">
+                                                <option selected>Today</option>
+                                                <option value="1">Weekly</option>
+                                                <option value="2">Monthly</option>
+                                                <option value="3">Yearly</option>
+                                            </select>
+                                        </div> */}
                       <h5 className="mb-0"> Product Sales</h5>
                     </div>
                     <div className="card-body">
