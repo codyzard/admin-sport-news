@@ -53,7 +53,7 @@ class Categories extends Component {
   renderCategories = () => {
     var { categories } = this.state;
     var { data } = categories;
-    if (!isEmpty(categories)) {
+    if (!isEmpty(data)) {
       var list_category = data.map((c, index) => {
         return <CategoryItem key={index} category={c} />;
       });
@@ -84,9 +84,9 @@ class Categories extends Component {
     );
   };
   render() {
-    var { per_page, total } = this.state.categories;
+    var { per_page, total, from, to } = this.state.categories;
     var { loading } = this.state;
-    var inShowing = "Showing 1 to " + per_page + " of " + total + " entries";
+    var inShowing = "Showing "+from+" to " + to + " of " + total + " entries";
     return (
       <div className="dashboard-wrapper">
         {loading === true ? (
@@ -155,6 +155,20 @@ class Categories extends Component {
                                   aria-controls="DataTables_Table_0"
                                 />
                               </label>
+                            </div>
+                          </div>
+                          <div className="col-sm-12 col-md-6 mb-2">
+                            <div
+                              id="DataTables_Table_0_filter"
+                              className="dataTables_filter"
+                            >
+                              <Link to="/management/categories/create" data-toggle="tooltip" title={"Thêm danh mục"}>
+                                <i
+                                  className="fa fa-plus fa-2x"
+                                  style={{ float: "right", marginTop: "6%", color: "#00ff00" }}
+                                  aria-hidden="true"
+                                ></i>
+                              </Link>
                             </div>
                           </div>
                         </div>

@@ -8,6 +8,10 @@ import Homepage from "../Homepages/Homepage";
 import Categories from "../ManagePages/CategoryPages/Categories";
 import Login from "../SessionPages/Login";
 import {isLogged} from '../../actions/index';
+import CreateCategoryForm from "../ManagePages/CategoryPages/CreateCategoryForm";
+import CategoryDetail from "../ManagePages/CategoryPages/CategoryDetail";
+import Profile from "../ProfilePage/Profile";
+import UpdateProfile from "../ProfilePage/UpdateProfile";
 class Main extends Component {
   state = {
     username: "",
@@ -26,7 +30,11 @@ class Main extends Component {
         {loggedIn ? <LeftNavigation /> : <></>}
         <Switch>
             <Route path="/" exact component={Homepage}/>
+            <Route path="/management/categories/create" component={CreateCategoryForm} />
+            <Route path="/management/categories/:id" component={CategoryDetail} />
             <Route path="/management/categories" component={Categories} />
+            <Route path="/profile/update" component={UpdateProfile}/>
+            <Route path="/profile" component={Profile}/>
             <Route path="/login" component={Login}/>
             <Route component={NotFound404}/>
         </Switch>

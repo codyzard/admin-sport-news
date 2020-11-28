@@ -6,7 +6,7 @@ import {logout} from '../../actions/index';
 class TopNavigation extends Component {
   state = {
     access_token: null,
-    user: null
+    user: null,
   };
   handleLogout = (e) => {
     e.preventDefault();
@@ -14,18 +14,19 @@ class TopNavigation extends Component {
     this.props.history.push('/login')
   }
   loadInfo = (name) => {
+    var {user_info} = this.state.user;
     return (
       <li className="nav-item dropdown nav-user">
         <a
-          className="nav-link nav-user-img"
           href="#"
+          className="nav-link nav-user-img"
           id="navbarDropdownMenuLink2"
           data-toggle="dropdown"
           aria-haspopup="true"
           aria-expanded="false"
         >
           <img
-            src="/images/avatar-1.jpg"
+            src={user_info && user_info.avatar_src ? user_info.avatar_src : "/images/avatar-1.jpg"}
             alt=""
             className="user-avatar-md rounded-circle"
           />
@@ -39,10 +40,10 @@ class TopNavigation extends Component {
             <span className="status" />
             <span className="ml-2">Đang hoạt động</span>
           </div>
-          <a className="dropdown-item" href="#">
+          <Link to="/profile" className="dropdown-item">
             <i className="fas fa-user mr-2" />
             Tài khoản
-          </a>
+          </Link>
           <a className="dropdown-item" href="#">
             <i className="fas fa-cog mr-2" />
             Cài đặt
