@@ -1,71 +1,110 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
-import { add } from "lodash";
+import { isEmpty } from "lodash";
 import { updateInfoRequest } from "../../actions";
-
+import { confirmAlert } from "react-confirm-alert"; // Import
+import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 class UpdateProfile extends Component {
   state = {
+    name: null,
     gender: null,
-    dob: null,
+    birthday: null,
     address: null,
     phone: null,
+    access_token: '',
+    user: null,
   };
-  notify = (message) => {
-    if (message === "already have") {
-      toast.error("Đã có", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
+  async componentDidMount() {
+    var access_token = JSON.parse(localStorage.getItem("access_token"));
+    var user = JSON.parse(localStorage.getItem("user"));
+    if (isEmpty(access_token) || isEmpty(user)) {
+      this.props.history.push("/login");
     }
-    if (message === "created success") {
-      toast.success("Thêm thành công", {
-        position: toast.POSITION.TOP_RIGHT,
+    var {user_info} = user;
+    this.setState({
+      name: user.name,
+      access_token: access_token,
+    })
+    if(user_info){
+      var {gender, birthday, address, phone} = user_info;
+      await this.setState({
+        gender: gender,
+        birthday: birthday,
+        address: address,
+        phone: phone,
+        user: user,
+        loading: false,
       });
-    } else {
-      toast.warning("Lỗi do chưa nhập tên danh mục hoặc chọn danh mục cha", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
+    
     }
-  };
-  afterSave = (option) => {
-    if (option === "Có") {
-      this.onClearForm();
-    } else {
-      this.props.history.goBack();
-    }
-  };
-  async componentDidMount() {}
+   }
   onChange = (e) => {
     var target = e.target;
     var { name, value } = target;
+    console.log(value);
     this.setState({
       [name]: value,
     });
   };
   onChangeGender = (e) => {
     var target = e.target;
-    var { name, value } = target;
-    if(value == 1){
+    var {value } = target;
+    if(parseInt(value) === 1){
       this.setState({
-        gender: true,
+        gender: 1,
       })
     }
     else{
       this.setState({
-        gender: false,
+        gender: 0,
       })
     }
   };
-  onClearForm = () => {};
   onSubmit = async (e) => {
     e.preventDefault();
-    var {gender, dob, address, phone} = this.state;
-    await this.props.updateInfo(gender, dob, address, phone);
+    if(isEmpty(this.state.name)){
+      confirmAlert({
+        title: "Lỗi",
+        message: "Tên không được để trống",
+        buttons: [
+          {
+            label: "OK",
+          },
+        ],
+      });
+      return;
+    }
+    var { access_token } = this.state;
+    const headers = { Authorization: `Bearer ${access_token}` }
+    var {name, gender, birthday, address, phone} = this.state;
+    await this.props.updateInfo(name, gender, birthday, address, phone, headers).then(() => {
+      confirmAlert({
+        title: "Thông báo",
+        message: "Cập nhật thông tin thành công",
+        buttons: [
+          {
+            label: "OK",
+            onClick: () => this.props.history.goBack()
+          },
+        ],
+      });
+    }).catch( () => {
+      confirmAlert({
+        title: "Lỗi",
+        message: "Lỗi chưa xác định",
+        buttons: [
+          {
+            label: "OK",
+          },
+        ],
+      });
+    });
   };
   render() {
-    var {gender, dob, address, phone} = this.state;
+    var {name, gender, birthday, address, phone} = this.state;
     return (
       <div className="dashboard-wrapper">
         <div className="container-fluid dashboard-content">
@@ -87,6 +126,16 @@ class UpdateProfile extends Component {
                 <h5 className="card-header">{"Cập nhật thông tin cá nhân"}</h5>
                 <div className="card-body">
                   <form>
+                  <div className="form-group">
+                      <label>{"Tên"}</label>
+                      <input
+                        className="form-control"
+                        id="name"
+                        name="name"
+                        defaultValue={name ? name : ""}
+                        onKeyUp = {(e) => {this.onChange(e)}}
+                      />
+                    </div>
                     <div className="form-group">
                       <label htmlFor="input-select" className="d-block">
                         {"Giới tính"}
@@ -96,7 +145,7 @@ class UpdateProfile extends Component {
                           type="radio"
                           name="gender"
                           className="custom-control-input"
-                          checked={gender == true ? "checked" : ""}
+                          checked={gender === 1 ? "checked" : ""}
                           value="1"
                           onChange = {(e) => {this.onChangeGender(e)}}
                         />
@@ -107,7 +156,7 @@ class UpdateProfile extends Component {
                           type="radio"
                           name="gender"
                           className="custom-control-input"
-                          checked={gender == false ? "checked" : ""}
+                          checked={gender === 0 ? "checked" : ""}
                           value="0"
                           onChange = {(e) => {this.onChangeGender(e)}}
                         />
@@ -121,10 +170,10 @@ class UpdateProfile extends Component {
                       <input
                         id="birthday"
                         type="date"
-                        name="dob"
+                        name="birthday"
                         className="form-control"
                         max={new Date().toISOString().split("T")[0]}
-                        defaultValue={dob ? dob : ""}
+                        defaultValue={birthday ? (birthday) : ""}
                         onChange = {(e) => {this.onChange(e)}}
                       />
                     </div>
@@ -182,8 +231,8 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    updateInfo: (gender, dob, address, phone) => {
-      return dispatch(updateInfoRequest(gender, dob, address, phone));
+    updateInfo: (name, gender, birthday, address, phone, headers) => {
+      return dispatch(updateInfoRequest(name, gender, birthday, address, phone, headers));
     }
   };
 };

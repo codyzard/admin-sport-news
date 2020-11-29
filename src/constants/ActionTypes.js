@@ -4,7 +4,7 @@ export const LOGGED = "LOGGED";
 export const LOGOUT = "LOGOUT";
 
 //PROFILE
-export const UPDATE_INFO_PROFILE = "UPDATE_INFO_PROFILE";
+export const UPDATE_INFO = "UPDATE_INFO";
 export const UPDATE_AVATAR = "UPDATE_AVATAR";
 
 

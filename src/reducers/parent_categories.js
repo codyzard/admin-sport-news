@@ -1,4 +1,3 @@
-import { isEmpty } from "lodash";
 import * as types from "../constants/ActionTypes";
 var initialState = [];
 

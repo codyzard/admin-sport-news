@@ -29,6 +29,11 @@ const session = (state = initialState, action) => {
       };
       localStorage.setItem("user", JSON.stringify(action.user));
       return { ...state };
+    case types.UPDATE_INFO:
+      state = {
+        user: action.user
+      }
+      localStorage.setItem("user", JSON.stringify(action.user));
     default:
       return { ...state };
   }

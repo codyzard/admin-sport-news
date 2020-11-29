@@ -40,6 +40,10 @@ export const updateAvatarRequest = (avatar_src, headers) => {
           console.log(error);
           return dispatch(errorMessage(429));
         }
+        else if(error.response.status === 500){
+          console.log(error);
+          return dispatch(errorMessage(500));
+        }
     })
   };
 };
@@ -51,25 +55,23 @@ export const updateAvatar = (user) => {
 }
 
 
-export const updateInfoRequest = (gender, dob, address, phone) => {
-  let token = JSON.parse(localStorage.get('access_token'));
-  const headers = { Authorization: `Bearer ${token}` }
+export const updateInfoRequest = (name, gender, birthday, address, phone, headers) => {
   return (dispatch) => {
-    return callApi("api/admin/update_info", "POST",{
+    return callApiWithAuth("api/auth/update_info", "POST",{
+      name: name,
       gender: gender,
-      dob: dob,
+      birthday: birthday,
       address: address,
       phone: phone,
     }, headers).then((res) => {
-        // if(res) return dispatch(updateInfo(res.data.profile))
-        console.log(res);
+        if(res) return dispatch(updateInfo(res.data.user))
     })
   };
 };
-export const updateInfo = (profile) => {
+export const updateInfo = (user) => {
   return{
-    type: types.UPDATE_INFO_PROFILE,
-    profile,
+    type: types.UPDATE_INFO,
+    user,
   };
 }
 

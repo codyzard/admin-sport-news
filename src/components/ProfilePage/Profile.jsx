@@ -24,6 +24,17 @@ class Profile extends Component {
       loading: false,
     });
   }
+  alertError = (title, message) => {
+    confirmAlert({
+      title: title,
+      message: message,
+      buttons: [
+        {
+          label: "OK",
+        },
+      ],
+    });
+  }
   onChangeAvatar = async (e) => {
     var avatar_src = e.target.files[0];
     var data = new FormData();
@@ -35,18 +46,17 @@ class Profile extends Component {
     })
     await this.props.updateAvatar(data, header);
     if(this.props.error === 429){
-      await this.setState({
-        loading: false
-      })
-      confirmAlert({
-        title: "Lỗi",
-        message: "Qúa nhiều yêu cầu, vui lòng thử lại sau ít phút !!!",
-        buttons: [
-          {
-            label: "OK",
-          },
-        ],
+      this.setState({
+        loading: false,
       });
+      this.alertError('Lỗi', "Qúa nhiều yêu cầu, vui lòng thử lại sau ít phút !!!");
+      this.props.clearError();
+    }
+    if(this.props.error === 500){
+      this.setState({
+        loading: false,
+      });
+      this.alertError('Lỗi', "Lỗi server 500");
       this.props.clearError();
     }
   };

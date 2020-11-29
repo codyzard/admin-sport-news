@@ -8,13 +8,21 @@ class TopNavigation extends Component {
     access_token: null,
     user: null,
   };
+  constructor(props){
+    super(props);
+    var access_token = JSON.parse(localStorage.getItem("access_token"));
+    var user = JSON.parse(localStorage.getItem("user"));
+    if (isEmpty(access_token) || isEmpty(user)) {
+      this.props.history.push("/login");
+    }
+  }
   handleLogout = (e) => {
     e.preventDefault();
     this.props.logout();
     this.props.history.push('/login')
   }
   loadInfo = (name) => {
-    var {user_info} = this.state.user;
+    if (this.state.user) var {user_info} = this.state.user;
     return (
       <li className="nav-item dropdown nav-user">
         <a
@@ -26,7 +34,7 @@ class TopNavigation extends Component {
           aria-expanded="false"
         >
           <img
-            src={user_info && user_info.avatar_src ? user_info.avatar_src : "/images/avatar-1.jpg"}
+            src={user_info && user_info.avatar_src ? user_info.avatar_src : "/images/default-avatar.png"}
             alt=""
             className="user-avatar-md rounded-circle"
           />
