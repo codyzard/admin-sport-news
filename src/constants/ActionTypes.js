@@ -25,3 +25,11 @@ export const UNLOADING = "UNLOADING";
 //ERROR
 export const MANY_REQUEST = 'MANY_REQUEST';
 export const CLEAR_ERROR = 'CLEAR_ERROR';
+
+//----------------NEWS_AUTHOR---------------
+
+export const GET_ALL_TAGS = 'GET_ALL_TAGS';
+export const PARENT_GET_CHILD_CATEGORIES = 'PARENT_GET_CHILD_CATEGORIES';
+
+
+//----------------NEWS_AUTHOR---------------

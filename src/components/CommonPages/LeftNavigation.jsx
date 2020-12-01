@@ -22,14 +22,9 @@ class LeftNavigation extends Component {
           <div id="management-author" className="collapse submenu" style={{}}>
             <ul className="nav flex-column">
               <li className="nav-item">
-                <Link className="nav-link" to="/management/categories">
+                <Link className="nav-link" to="/management/news">
                   {"Bài viết cá nhân"}
                 </Link>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="dashboard-finance.html">
-                  {"News"}
-                </a>
               </li>
               <li className="nav-item">
                 <a className="nav-link" href="dashboard-sales.html">

@@ -12,6 +12,8 @@ import CreateCategoryForm from "../ManagePages/CategoryPages/CreateCategoryForm"
 import CategoryDetail from "../ManagePages/CategoryPages/CategoryDetail";
 import Profile from "../ProfilePage/Profile";
 import UpdateProfile from "../ProfilePage/UpdateProfile";
+import News from "../ManagePages/NewsPages/News";
+import NewsForm from "../ManagePages/NewsPages/NewsForm";
 class Main extends Component {
   state = {
     username: "",
@@ -33,6 +35,8 @@ class Main extends Component {
             <Route path="/management/categories/create" component={CreateCategoryForm} />
             <Route path="/management/categories/:id" component={CategoryDetail} />
             <Route path="/management/categories" component={Categories} />
+            <Route path="/management/news/create" component={NewsForm} />
+            <Route path="/management/news" component={News} />
             <Route path="/profile/update" component={UpdateProfile}/>
             <Route path="/profile" component={Profile}/>
             <Route path="/login" component={Login}/>
