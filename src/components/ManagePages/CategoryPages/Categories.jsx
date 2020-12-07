@@ -8,6 +8,9 @@ import {
   nextPage,
   loading,
   unloading,
+  searchCategoriesRequest,
+  searchNextPage,
+  unmountSearchKeyword,
 } from "../../../actions/index";
 import Pagination from "react-js-pagination";
 import { ThreeDots } from "@agney/react-loading";
@@ -17,10 +20,12 @@ class Categories extends Component {
     user: null,
     categories: null,
     loading: true,
+    search: "",
   };
   async componentDidMount() {
     var access_token = JSON.parse(localStorage.getItem("access_token"));
     var user = JSON.parse(localStorage.getItem("user"));
+    var {search} = this.props;
     if (isEmpty(access_token)) {
       this.props.history.push("/login");
     } else {
@@ -33,6 +38,9 @@ class Categories extends Component {
         });
       }
     }
+  }
+  componentWillUnmount(){
+    this.props.unmountSearchKeyword();
   }
   static getDerivedStateFromProps(props, state) {
     if (props.categories !== state.categories) {
@@ -61,11 +69,15 @@ class Categories extends Component {
     return list_category;
   };
   nextPage = async (pageNumber) => {
+    let {search} = this.state;
     this.setState({
       loading: true,
     });
     await new Promise((r) => setTimeout(r, 200));
-    await this.props.nextPage(pageNumber);
+    if (!isEmpty(search)) {
+      await this.props.searchNextPage(search, pageNumber);
+    }
+    else await this.props.nextPage(pageNumber);
   };
   renderPagination = () => {
     var { categories } = this.state;
@@ -83,10 +95,28 @@ class Categories extends Component {
       />
     );
   };
+  onEnter = async (e) => {
+    if (e.keyCode === 13) {
+      await this.onSearch();
+    }
+  };
+  onChange = (e) => {
+    var search = e.target.value;
+    this.setState({ search });
+  };
+  onSumbit = async (e) => {
+    await this.onSearch();
+  };
+  onSearch = async () => {
+    var { search } = this.state;
+    this.setState({ loading: true });
+    await this.props.searchCategories(search);
+  };
   render() {
     var { per_page, total, from, to } = this.state.categories;
-    var { loading } = this.state;
-    var inShowing = "Showing "+from+" to " + to + " of " + total + " entries";
+    var { loading, search } = this.state;
+    var inShowing =
+      "Showing " + from + " to " + to + " of " + total + " entries";
     return (
       <div className="dashboard-wrapper">
         {loading === true ? (
@@ -105,14 +135,10 @@ class Categories extends Component {
                       <ol className="breadcrumb">
                         <li className="breadcrumb-item">
                           <Link to="/" className="breadcrumb-link">
-                            {"Thống kê"}
+                            {"Trang chủ"}
                           </Link>
                         </li>
-                        <li className="breadcrumb-item">
-                          <a href="#" className="breadcrumb-link">
-                            {"Quản lý"}
-                          </a>
-                        </li>
+                        <li className="breadcrumb-item">{"Quản lý"}</li>
                         <li
                           className="breadcrumb-item active"
                           aria-current="page"
@@ -141,31 +167,51 @@ class Categories extends Component {
                         className="dataTables_wrapper dt-bootstrap4"
                       >
                         <div className="row">
-                          <div className="col-sm-12 col-md-6 mb-2">
+                          <div className="col-sm-12 col-md-6 col-lg-8 mb-2">
                             <div
                               id="DataTables_Table_0_filter"
                               className="dataTables_filter"
                             >
                               <label>
-                                Search:
+                                Tìm kiếm:
                                 <input
                                   type="search"
                                   className="form-control form-control-sm"
-                                  placeholder={"Nhập từ khóa"}
+                                  placeholder={"Nhập tên danh mục"}
                                   aria-controls="DataTables_Table_0"
+                                  onKeyDown={(e) => this.onEnter(e)}
+                                  onChange={(e) => this.onChange(e)}
+                                  defaultValue={search}
                                 />
                               </label>
+                              <button
+                                className="ml-2"
+                                onClick={(e) => this.onSumbit(e)}
+                              >
+                                <i
+                                  className="fa fa-search"
+                                  aria-hidden="true"
+                                ></i>
+                              </button>
                             </div>
                           </div>
-                          <div className="col-sm-12 col-md-6 mb-2">
+                          <div className="col-sm-12 col-md-6 col-lg-4 mb-2">
                             <div
                               id="DataTables_Table_0_filter"
                               className="dataTables_filter"
                             >
-                              <Link to="/management/categories/create" data-toggle="tooltip" title={"Thêm danh mục"}>
+                              <Link
+                                to="/management/categories/create"
+                                data-toggle="tooltip"
+                                title={"Thêm danh mục"}
+                              >
                                 <i
                                   className="fa fa-plus fa-2x"
-                                  style={{ float: "right", marginTop: "6%", color: "#00ff00" }}
+                                  style={{
+                                    float: "right",
+                                    marginTop: "6%",
+                                    color: "#00ff00",
+                                  }}
                                   aria-hidden="true"
                                 ></i>
                               </Link>
@@ -212,9 +258,20 @@ class Categories extends Component {
                                     rowSpan={1}
                                     colSpan={1}
                                     aria-label="Office: activate to sort column ascending"
-                                    style={{ width: "350px" }}
+                                    style={{ width: "250px" }}
                                   >
                                     Mô tả
+                                  </th>
+                                  <th
+                                    className="sorting"
+                                    tabIndex={0}
+                                    aria-controls="DataTables_Table_0"
+                                    rowSpan={1}
+                                    colSpan={1}
+                                    aria-label="Office: activate to sort column ascending"
+                                    style={{ width: "100px" }}
+                                  >
+                                    Số bài viết
                                   </th>
                                   <th
                                     className="sorting"
@@ -284,6 +341,7 @@ const mapStateToProps = (state) => {
   return {
     categories: state.categories,
     loading: state.loading,
+    search: state.search,
   };
 };
 const mapDispatchToProps = (dispatch, props) => {
@@ -300,6 +358,15 @@ const mapDispatchToProps = (dispatch, props) => {
     unloading: () => {
       return dispatch(unloading());
     },
+    searchCategories: (keyword) => {
+      return dispatch(searchCategoriesRequest(keyword));
+    },
+    searchNextPage: (keyword, pageNumber) => {
+      return dispatch(searchNextPage(keyword, pageNumber));
+    },
+    unmountSearchKeyword: () => {
+      return dispatch(unmountSearchKeyword());
+    }
   };
 };
 

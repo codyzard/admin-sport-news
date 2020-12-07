@@ -28,7 +28,7 @@ class LeftNavigation extends Component {
               </li>
               <li className="nav-item">
                 <a className="nav-link" href="dashboard-sales.html">
-                  {"Author"}
+                  {"Đang phát triển"}
                 </a>
               </li>
             </ul>
@@ -49,7 +49,7 @@ class LeftNavigation extends Component {
             data-target="#submenu-1"
             aria-controls="submenu-1"
           >
-            <i className="fa fa-fw fa-user-circle" />
+            <i className="fas fa-chart-bar"></i>
             {"Thống kê"} <span className="badge badge-success">6</span>
           </a>
           <div id="submenu-1" className="collapse submenu" style={{}}>
@@ -63,48 +63,22 @@ class LeftNavigation extends Component {
                   data-target="#submenu-1-2"
                   aria-controls="submenu-1-2"
                 >
-                  E-Commerce
+                  {"Đang phát triển"}
                 </a>
                 <div id="submenu-1-2" className="collapse submenu" style={{}}>
                   <ul className="nav flex-column">
                     <li className="nav-item">
                       <a className="nav-link" href="index.html">
-                        E Commerce Dashboard
+                        1
                       </a>
                     </li>
                     <li className="nav-item">
                       <a className="nav-link" href="ecommerce-product.html">
-                        Product List
-                      </a>
-                    </li>
-                    <li className="nav-item">
-                      <a
-                        className="nav-link"
-                        href="ecommerce-product-single.html"
-                      >
-                        Product Single
-                      </a>
-                    </li>
-                    <li className="nav-item">
-                      <a
-                        className="nav-link"
-                        href="ecommerce-product-checkout.html"
-                      >
-                        Product Checkout
+                        2
                       </a>
                     </li>
                   </ul>
                 </div>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="dashboard-finance.html">
-                  Finance
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="dashboard-sales.html">
-                  Sales
-                </a>
               </li>
             </ul>
           </div>
@@ -134,9 +108,9 @@ class LeftNavigation extends Component {
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="dashboard-sales.html">
+                <Link className="nav-link" to="/management/author_account">
                   {"Tác giả"}
-                </a>
+                </Link>
               </li>
               <li className="nav-item">
                 <a className="nav-link" href="dashboard-sales.html">
@@ -144,177 +118,9 @@ class LeftNavigation extends Component {
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="dashboard-sales.html">
+                <Link to="/management/approval_news" className="nav-link">
                   {"Kiểm duyệt bài viết"}
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
-        <li className="nav-item">
-          <a
-            className="nav-link"
-            href="#"
-            data-toggle="collapse"
-            aria-expanded="false"
-            data-target="#submenu-2"
-            aria-controls="submenu-2"
-          >
-            <i className="fa fa-fw fa-rocket" />
-            UI Elements
-          </a>
-          <div id="submenu-2" className="collapse submenu" style={{}}>
-            <ul className="nav flex-column">
-              <li className="nav-item">
-                <a className="nav-link" href="pages/cards.html">
-                  Cards <span className="badge badge-secondary">New</span>
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/general.html">
-                  General
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/carousel.html">
-                  Carousel
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/listgroup.html">
-                  List Group
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/typography.html">
-                  Typography
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/accordions.html">
-                  Accordions
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/tabs.html">
-                  Tabs
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
-        <li className="nav-item">
-          <a
-            className="nav-link"
-            href="#"
-            data-toggle="collapse"
-            aria-expanded="false"
-            data-target="#submenu-3"
-            aria-controls="submenu-3"
-          >
-            <i className="fas fa-fw fa-chart-pie" />
-            Chart
-          </a>
-          <div id="submenu-3" className="collapse submenu" style={{}}>
-            <ul className="nav flex-column">
-              <li className="nav-item">
-                <a className="nav-link" href="pages/chart-c3.html">
-                  C3 Charts
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/chart-chartist.html">
-                  Chartist Charts
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/chart-charts.html">
-                  Chart
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/chart-morris.html">
-                  Morris
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/chart-sparkline.html">
-                  Sparkline
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/chart-gauge.html">
-                  Guage
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
-        <li className="nav-item ">
-          <a
-            className="nav-link"
-            href="#"
-            data-toggle="collapse"
-            aria-expanded="false"
-            data-target="#submenu-4"
-            aria-controls="submenu-4"
-          >
-            <i className="fab fa-fw fa-wpforms" />
-            Forms
-          </a>
-          <div id="submenu-4" className="collapse submenu" style={{}}>
-            <ul className="nav flex-column">
-              <li className="nav-item">
-                <a className="nav-link" href="pages/form-elements.html">
-                  Form Elements
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/form-validation.html">
-                  Parsely Validations
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/multiselect.html">
-                  Multiselect
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/datepicker.html">
-                  Date Picker
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/bootstrap-select.html">
-                  Bootstrap Select
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
-        <li className="nav-item">
-          <a
-            className="nav-link"
-            href="#"
-            data-toggle="collapse"
-            aria-expanded="false"
-            data-target="#submenu-5"
-            aria-controls="submenu-5"
-          >
-            <i className="fas fa-fw fa-table" />
-            Tables
-          </a>
-          <div id="submenu-5" className="collapse submenu" style={{}}>
-            <ul className="nav flex-column">
-              <li className="nav-item">
-                <a className="nav-link" href="pages/general-table.html">
-                  General Tables
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="pages/data-tables.html">
-                  Data Tables
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

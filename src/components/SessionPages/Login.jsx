@@ -1,17 +1,17 @@
 import { isEmpty } from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { loginRequest } from "../../actions/index";
+import { loading, loginRequest } from "../../actions/index";
+import { Puff } from "@agney/react-loading";
+import { confirmAlert } from "react-confirm-alert"; // Import
+import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 class Login extends Component {
   state = {
     email: "",
     password: "",
     isChecked: false,
-    loggedIn: false,
+    loading: true,
   };
-  constructor(props) {
-    super(props);
-  }
   onChangeInput = (e) => {
     var target = e.target;
     var { name, value } = target;
@@ -22,93 +22,112 @@ class Login extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     var { email, password } = this.state;
-    await this.props.login(email, password);
-    if(!isEmpty(this.props.session)){
-      this.props.history.push("/")
-    }
-  };
-  onCheckedChange = () => {
-    this.setState({
-      isChecked: !this.state.isChecked,
+    this.setState({loading: true});
+    await this.props.login(email, password).catch((err) => {
+      this.setState({loading: false});
+      if (err.response.data.error === "Account is block") {
+        confirmAlert({
+          title: "Lỗi",
+          message: "Tài khoản đã bị khóa",
+          buttons: [
+            {
+              label: "OK",
+            },
+          ],
+        });
+      }
+      else if (err.response.status === 401){
+        confirmAlert({
+          title: "Người dùng không hợp lệ",
+          message: "Sai email hoặc mật khẩu",
+          buttons: [
+            {
+              label: "OK",
+            },
+          ],
+        });
+      }
     });
+    if (!isEmpty(this.props.session)) {
+      this.props.history.push("/");
+    }
   };
   componentDidMount() {
-    var { user, access_token } = this.props.session;
-    if (user && access_token) {
-      this.setState({
-        loggedIn: true,
-      });
+    var access_token = JSON.parse(localStorage.getItem("access_token"));
+    this.setState({loading: false})
+    if (access_token) {
+      this.props.history.push("/");
     }
   }
+  renderLoading = () => {
+    return <Puff color="#00BFFF" height="600" width="100%" />;
+  };
   formLogin = () => {
+    let { loading } = this.state;
     return (
       <div className="splash-container">
-        <div className="card mt-5">
-          <div className="card-header text-center">
-            <a href="../index.html">
-              <img className="logo-img" src="/images/logo.png" alt="logo" />
-            </a>
-            <span className="splash-description">
-              Please enter your user information.
-            </span>
-          </div>
-          <div className="card-body">
-            <form>
-              <div className="form-group">
-                <input
-                  className="form-control form-control-lg"
-                  name="email"
-                  id="email"
-                  type="email"
-                  placeholder="Email"
-                  autoComplete="off"
-                  onChange={(e) => this.onChangeInput(e)}
+        {loading ? (
+          this.renderLoading()
+        ) : (
+          <div className="card mt-5">
+            <div className="card-header text-center">
+              <a href="../index.html">
+                <img
+                  className="logo-img"
+                  src="/images/logoSTE.png"
+                  width="135px"
+                  alt="logo"
                 />
-              </div>
-              <div className="form-group">
-                <input
-                  className="form-control form-control-lg"
-                  name="password"
-                  id="password"
-                  type="password"
-                  placeholder="Password"
-                  onChange={(e) => this.onChangeInput(e)}
-                />
-              </div>
-              <div className="form-group">
-                <label className="custom-control custom-checkbox">
+              </a>
+              <span className="splash-description">Nhập email và mật khẩu</span>
+            </div>
+            <div className="card-body">
+              <form>
+                <div className="form-group">
                   <input
-                    className="custom-control-input"
-                    type="checkbox"
-                    value={this.state.isChecked}
-                    onClick={this.onCheckedChange}
+                    className="form-control form-control-lg"
+                    name="email"
+                    id="email"
+                    type="email"
+                    placeholder="Email"
+                    autoComplete="off"
+                    onChange={(e) => this.onChangeInput(e)}
                   />
-                  <span className="custom-control-label">Remember Me</span>
-                </label>
-              </div>
-              <button
-                type="submit"
-                className="btn btn-primary btn-lg btn-block"
-                onClick={(e) => this.onSubmit(e)}
-              >
-                Sign in
-              </button>
-            </form>
+                </div>
+                <div className="form-group">
+                  <input
+                    className="form-control form-control-lg"
+                    name="password"
+                    id="password"
+                    type="password"
+                    placeholder="Password"
+                    onChange={(e) => this.onChangeInput(e)}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-lg btn-block"
+                  onClick={(e) => this.onSubmit(e)}
+                >
+                  Sign in
+                </button>
+              </form>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   };
+  renderLoading = () => {
+    return <Puff color="#00BFFF" height="800" width="100%" />;
+  };
   isLogged = () => {
-    var access_token = JSON.parse(localStorage.getItem('access_token'));
-    if(!isEmpty(access_token)) return true;
+    var access_token = JSON.parse(localStorage.getItem("access_token"));
+    if (!isEmpty(access_token)) return true;
     return false;
-  }
+  };
   render() {
-    var { loggedIn } = this.state;
-    return(
-      this.isLogged() ? "" : this.formLogin()
-    );
+    return this.isLogged() ? "" : this.formLogin();
   }
 }
 

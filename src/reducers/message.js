@@ -5,6 +5,7 @@ const message = (state = initialState, action) => {
   switch (action.type) {
     case types.CREATE_CATEGORY:
       state = action.message;
+      console.log(state);
       return state;
     case types.UPDATE_CATEGORY:
       state = action.message;

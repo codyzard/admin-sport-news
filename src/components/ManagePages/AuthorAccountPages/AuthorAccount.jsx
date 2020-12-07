@@ -1,42 +1,26 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import {
-  getAuthorNewsRequest,
-  nextPageAuthorNewsRequest,
-  searchAuthorNewsRequest,
-  searchNextPageAuthorNewsRequest,
-} from "../../../actions/index";
 import Pagination from "react-js-pagination";
 import { ThreeDots } from "@agney/react-loading";
-import NewsItem from "./NewsItem";
-import { confirmAlert } from "react-confirm-alert"; // Import
-import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
-class News extends Component {
+import {getAuthorAccountRequest} from "../../../actions";
+import AuthorAccountItem from "./AuthorAccountItem";
+class AuthorAccount extends Component {
   state = {
     access_token: null,
-    loading: false,
-    author_news: {},
+    loading: true,
     search: "",
-  };
-  alertError = (title, message) => {
-    confirmAlert({
-      title: title,
-      message: message,
-      buttons: [
-        {
-          label: "OK",
-        },
-      ],
-    });
+    author_account: {},
   };
   async componentDidMount() {
-    var access_token = JSON.parse(localStorage.getItem("access_token"));
+    let access_token = JSON.parse(localStorage.getItem("access_token"));
     const header = { Authorization: `Bearer ${access_token}` };
-    await this.props.getAuthorNews(header);
-    this.setState({
-      author_news: this.props.author_news,
-    });
+    await this.props.getAuthorAccount(header);
+    let { author_account } = this.props;
+    this.setState({ loading: false, author_account });
+  }
+  componentWillUnmount() {
+    // this.props.unmountSearchKeyword();
   }
   nextPage = async (pageNumber) => {
     let { search } = this.state;
@@ -45,7 +29,9 @@ class News extends Component {
     });
     var access_token = JSON.parse(localStorage.getItem("access_token"));
     const header = { Authorization: `Bearer ${access_token}` };
-    await this.props.searchAuthorNewsNextPage(header, search, pageNumber).catch((err) => {
+
+    await new Promise((r) => setTimeout(r, 200));
+    await this.props.searchNextPage(header, search, pageNumber).catch((err) => {
       console.log(err);
       this.alertError(
         "Lỗi",
@@ -55,32 +41,33 @@ class News extends Component {
         loading: false,
       });
       // this.props.history.push('/login')
-    });;
+    });
   };
   static getDerivedStateFromProps(props, state) {
-    if (props.author_news !== state.author_news) {
+    if (props.author_account !== state.author_account) {
       return {
-        author_news: props.author_news,
+        author_account: props.author_account,
         loading: false,
+        // search: props.search,
       };
     }
     return null;
   }
   renderPagination = () => {
-    var { author_news } = this.state;
-    var { current_page, per_page, total} = author_news;
-    return (
-      <Pagination
-        activePage={current_page}
-        totalItemsCount={total}
-        itemsCountPerPage={per_page}
-        onChange={(pageNumber) => this.nextPage(pageNumber)}
-        itemClass="page-item"
-        linkClass="page-link"
-        firstPageText={"Đầu"}
-        lastPageText={"Cuối"}
-      />
-    );
+    // var { approval_news } = this.state;
+    // var { current_page, per_page, total } = approval_news;
+    // return (
+    //   <Pagination
+    //     activePage={current_page}
+    //     totalItemsCount={total}
+    //     itemsCountPerPage={per_page}
+    //     onChange={(pageNumber) => this.nextPage(pageNumber)}
+    //     itemClass="page-item"
+    //     linkClass="page-link"
+    //     firstPageText={"Đầu"}
+    //     lastPageText={"Cuối"}
+    //   />
+    // );
   };
   onEnter = async (e) => {
     if (e.keyCode === 13) {
@@ -99,7 +86,7 @@ class News extends Component {
     var access_token = JSON.parse(localStorage.getItem("access_token"));
     const header = { Authorization: `Bearer ${access_token}` };
     this.setState({ loading: true });
-    await this.props.searchAuthorNews(header, search).catch((err) => {
+    await this.props.searchApprovalNews(header, search).catch((err) => {
       console.log(err);
       this.alertError(
         "Lỗi",
@@ -109,16 +96,16 @@ class News extends Component {
         loading: false,
       });
       // this.props.history.push('/login')
-    });;
+    });
   };
   render() {
-    var { loading, author_news, search } = this.state;
-    var {from, to, total} = author_news;
-    var inShowing =
-      "Showing " + from + " to " + to + " of " + total + " entries";
-    if (author_news.data) {
-      var list_news = author_news.data.map((news, index) => {
-        return <NewsItem news={news} key={index} />;
+    var { loading, search, author_account } = this.state;
+    var { from, to, total } = author_account;
+    // var inShowing =
+    //   "Showing " + from + " to " + to + " of " + total + " entries";
+    if (author_account.data) {
+      var list_author_account = author_account.data.map((user, index) => {
+        return <AuthorAccountItem user={user} key={index} />;
       });
     }
     return (
@@ -133,25 +120,21 @@ class News extends Component {
             <div className="row">
               <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                 <div className="page-header">
-                  <h2 className="pageheader-title">{"Bài viết cá nhân"}</h2>
+                  <h2 className="pageheader-title">{"Tài khoản tác giả"}</h2>
                   <div className="page-breadcrumb">
                     <nav aria-label="breadcrumb">
                       <ol className="breadcrumb">
                         <li className="breadcrumb-item">
                           <Link to="/" className="breadcrumb-link">
-                            {"Trang chủ"}
+                            {"Thống kê"}
                           </Link>
                         </li>
-                        <li className="breadcrumb-item">
-                          <a href="#" className="breadcrumb-link">
-                            {"Quản lý"}
-                          </a>
-                        </li>
+                        <li className="breadcrumb-item">{"Quản lý"}</li>
                         <li
                           className="breadcrumb-item active"
                           aria-current="page"
                         >
-                          {"Bài viết cá nhân"}
+                          {"Tài khoản tác giả"}
                         </li>
                       </ol>
                     </nav>
@@ -185,7 +168,7 @@ class News extends Component {
                                 <input
                                   type="search"
                                   className="form-control form-control-sm"
-                                  placeholder={"Nhập tiêu đề, tóm tắt"}
+                                  placeholder={"Nhập tên hoặc email tác giả"}
                                   aria-controls="DataTables_Table_0"
                                   onKeyDown={(e) => this.onEnter(e)}
                                   onChange={(e) => this.onChange(e)}
@@ -201,28 +184,6 @@ class News extends Component {
                                   aria-hidden="true"
                                 ></i>
                               </button>
-                            </div>
-                          </div>
-                          <div className="col-sm-12 col-md-6 col-lg-4 mb-2">
-                            <div
-                              id="DataTables_Table_0_filter"
-                              className="dataTables_filter"
-                            >
-                              <Link
-                                to="/management/news/create"
-                                data-toggle="tooltip"
-                                title={"Thêm bài viết"}
-                              >
-                                <i
-                                  className="fa fa-plus fa-2x"
-                                  style={{
-                                    float: "right",
-                                    marginTop: "6%",
-                                    color: "#00ff00",
-                                  }}
-                                  aria-hidden="true"
-                                ></i>
-                              </Link>
                             </div>
                           </div>
                         </div>
@@ -244,9 +205,9 @@ class News extends Component {
                                     colSpan={1}
                                     aria-sort="ascending"
                                     aria-label="Name: activate to sort column descending"
-                                    style={{ width: "30px" }}
+                                    style={{ width: "200px" }}
                                   >
-                                    ID
+                                    Tên
                                   </th>
                                   <th
                                     className="sorting_asc"
@@ -258,7 +219,7 @@ class News extends Component {
                                     aria-label="Name: activate to sort column descending"
                                     style={{ width: "200px" }}
                                   >
-                                    Tiêu đề
+                                    Ảnh đại diện
                                   </th>
                                   <th
                                     className="sorting_asc"
@@ -268,9 +229,9 @@ class News extends Component {
                                     colSpan={1}
                                     aria-sort="ascending"
                                     aria-label="Name: activate to sort column descending"
-                                    style={{ width: "200px" }}
+                                    style={{ width: "75px" }}
                                   >
-                                    Ảnh tiêu đề
+                                    Giới tính
                                   </th>
                                   <th
                                     className="sorting"
@@ -281,7 +242,7 @@ class News extends Component {
                                     aria-label="Position: activate to sort column ascending"
                                     style={{ width: "200px" }}
                                   >
-                                    Tóm tắt
+                                    Ngày sinh
                                   </th>
                                   <th
                                     className="sorting"
@@ -292,7 +253,7 @@ class News extends Component {
                                     aria-label="Position: activate to sort column ascending"
                                     style={{ width: "300px" }}
                                   >
-                                    Nội dung
+                                    Địa chỉ
                                   </th>
                                   <th
                                     className="sorting"
@@ -303,7 +264,7 @@ class News extends Component {
                                     aria-label="Position: activate to sort column ascending"
                                     style={{ width: "100px" }}
                                   >
-                                    Nhãn
+                                    Số điện thoại
                                   </th>
                                   <th
                                     className="sorting"
@@ -312,9 +273,9 @@ class News extends Component {
                                     rowSpan={1}
                                     colSpan={1}
                                     aria-label="Position: activate to sort column ascending"
-                                    style={{ width: "150px" }}
+                                    style={{ width: "125px" }}
                                   >
-                                    Danh mục
+                                    Vai trò
                                   </th>
                                   <th
                                     className="sorting"
@@ -323,20 +284,9 @@ class News extends Component {
                                     rowSpan={1}
                                     colSpan={1}
                                     aria-label="Position: activate to sort column ascending"
-                                    style={{ width: "10px" }}
+                                    style={{ width: "125px" }}
                                   >
-                                    Tin nóng
-                                  </th>
-                                  <th
-                                    className="sorting"
-                                    tabIndex={0}
-                                    aria-controls="DataTables_Table_0"
-                                    rowSpan={1}
-                                    colSpan={1}
-                                    aria-label="Position: activate to sort column ascending"
-                                    style={{ width: "10px" }}
-                                  >
-                                    Duyệt
+                                    Trạng thái
                                   </th>
                                   <th
                                     className="sorting"
@@ -351,7 +301,7 @@ class News extends Component {
                                   </th>
                                 </tr>
                               </thead>
-                              <tbody>{list_news}</tbody>
+                              <tbody>{list_author_account}</tbody>
                             </table>
                           </div>
                         </div>
@@ -363,7 +313,7 @@ class News extends Component {
                               role="status"
                               aria-live="polite"
                             >
-                              {inShowing}
+                              {/* {inShowing} */}
                             </div>
                           </div>
                           <div className="col-sm-12 col-md-7">
@@ -371,7 +321,7 @@ class News extends Component {
                               className="dataTables_paginate paging_simple_numbers"
                               id="DataTables_Table_0_paginate"
                             >
-                              {this.renderPagination()}
+                              {/* {this.renderPagination()} */}
                             </div>
                           </div>
                         </div>
@@ -393,26 +343,15 @@ class News extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    author_news: state.author_news,
+    author_account: state.author_account,
   };
 };
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    getAuthorNews: (header) => {
-      return dispatch(getAuthorNewsRequest(header));
-    },
-    nextPage: (header, pageNumber) => {
-      return dispatch(nextPageAuthorNewsRequest(header, pageNumber));
-    },
-    searchAuthorNews: (header, keyword) => {
-      return dispatch(searchAuthorNewsRequest(header, keyword));
-    },
-    searchAuthorNewsNextPage: (header, keyword, pageNumber) => {
-      return dispatch(
-        searchNextPageAuthorNewsRequest(header, keyword, pageNumber)
-      );
+    getAuthorAccount: (header) => {
+      return dispatch(getAuthorAccountRequest(header));
     },
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(News);
+export default connect(mapStateToProps, mapDispatchToProps)(AuthorAccount);

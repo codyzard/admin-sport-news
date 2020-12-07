@@ -15,7 +15,7 @@ class Profile extends Component {
   async componentDidMount() {
     var access_token = JSON.parse(localStorage.getItem("access_token"));
     var user = JSON.parse(localStorage.getItem("user"));
-    if (isEmpty(access_token) || isEmpty(user)) {
+    if (isEmpty(access_token)) {
       this.props.history.push("/login");
     }
     await this.setState({
@@ -44,21 +44,16 @@ class Profile extends Component {
     this.setState({
       loading: true,
     })
-    await this.props.updateAvatar(data, header);
-    if(this.props.error === 429){
-      this.setState({
-        loading: false,
-      });
-      this.alertError('Lỗi', "Qúa nhiều yêu cầu, vui lòng thử lại sau ít phút !!!");
-      this.props.clearError();
-    }
-    if(this.props.error === 500){
-      this.setState({
-        loading: false,
-      });
-      this.alertError('Lỗi', "Lỗi server 500");
-      this.props.clearError();
-    }
+    await this.props.updateAvatar(data, header).catch(err => {
+      this.setState({loading: false})
+      if(err.response.status === 401){
+        this.alertError('Lỗi', 'phiên đăng nhập hết hạn, vui lòng đăng nhập lại');
+      }
+      else if(err.response.status){
+        this.alertError('Lỗi', 'Server đang bận, vui lòng thử lại sau');
+      }
+    });
+   
   };
   static getDerivedStateFromProps(props, state) {
     if (props.session.user !== state.user) {
@@ -175,7 +170,7 @@ class Profile extends Component {
                           <h4>
                             Vai trò:{" "}
                             <i>
-                              {user_info && user_info.role
+                              {user && user.role
                                 ? "Quản trị viên"
                                 : "Tác giả"}
                             </i>

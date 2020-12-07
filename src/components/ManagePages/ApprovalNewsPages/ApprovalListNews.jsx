@@ -1,42 +1,39 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import {
-  getAuthorNewsRequest,
-  nextPageAuthorNewsRequest,
-  searchAuthorNewsRequest,
-  searchNextPageAuthorNewsRequest,
-} from "../../../actions/index";
 import Pagination from "react-js-pagination";
 import { ThreeDots } from "@agney/react-loading";
-import NewsItem from "./NewsItem";
-import { confirmAlert } from "react-confirm-alert"; // Import
-import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
-class News extends Component {
+import {
+  getApprovalNewsRequest,
+  nextPageApprovalNewsRequest,
+  searchApprovalNewsRequest,
+  searchNextPageApprovalNewsRequest,
+  unmountSearchKeyword,
+} from "../../../actions";
+import {alertMessage} from '../../../utils/help_function'
+import ApprovalNewsItem from "./ApprovalNewsItem";
+class ApprovalListNews extends Component {
   state = {
     access_token: null,
-    loading: false,
-    author_news: {},
+    loading: true,
+    approval_news: {},
     search: "",
-  };
-  alertError = (title, message) => {
-    confirmAlert({
-      title: title,
-      message: message,
-      buttons: [
-        {
-          label: "OK",
-        },
-      ],
-    });
   };
   async componentDidMount() {
     var access_token = JSON.parse(localStorage.getItem("access_token"));
     const header = { Authorization: `Bearer ${access_token}` };
-    await this.props.getAuthorNews(header);
-    this.setState({
-      author_news: this.props.author_news,
+    await this.props.getApprovalNews(header).catch(err => {
+      if(err.response.status === 401){
+        alertMessage('Lỗi', 'phiên đăng nhập hết hạn, vui lòng đăng nhập lại');
+      }
     });
+    this.setState({
+      approval_news: this.props.approval_news,
+      loading: false,
+    });
+  }
+  componentWillUnmount() {
+    this.props.unmountSearchKeyword();
   }
   nextPage = async (pageNumber) => {
     let { search } = this.state;
@@ -45,9 +42,10 @@ class News extends Component {
     });
     var access_token = JSON.parse(localStorage.getItem("access_token"));
     const header = { Authorization: `Bearer ${access_token}` };
-    await this.props.searchAuthorNewsNextPage(header, search, pageNumber).catch((err) => {
-      console.log(err);
-      this.alertError(
+
+    await new Promise((r) => setTimeout(r, 200));
+    await this.props.searchNextPage(header, search, pageNumber).catch((err) => {
+      alertMessage(
         "Lỗi",
         "Phiên hết hạn, vui lòng đăng xuất rồi đăng nhập lại"
       );
@@ -58,17 +56,18 @@ class News extends Component {
     });;
   };
   static getDerivedStateFromProps(props, state) {
-    if (props.author_news !== state.author_news) {
+    if (props.approval_news !== state.approval_news) {
       return {
-        author_news: props.author_news,
+        approval_news: props.approval_news,
         loading: false,
+        search: props.search,
       };
     }
     return null;
   }
   renderPagination = () => {
-    var { author_news } = this.state;
-    var { current_page, per_page, total} = author_news;
+    var { approval_news } = this.state;
+    var { current_page, per_page, total } = approval_news;
     return (
       <Pagination
         activePage={current_page}
@@ -99,9 +98,8 @@ class News extends Component {
     var access_token = JSON.parse(localStorage.getItem("access_token"));
     const header = { Authorization: `Bearer ${access_token}` };
     this.setState({ loading: true });
-    await this.props.searchAuthorNews(header, search).catch((err) => {
-      console.log(err);
-      this.alertError(
+    await this.props.searchApprovalNews(header, search).catch((err) => {
+      alertMessage(
         "Lỗi",
         "Phiên hết hạn, vui lòng đăng xuất rồi đăng nhập lại"
       );
@@ -112,13 +110,13 @@ class News extends Component {
     });;
   };
   render() {
-    var { loading, author_news, search } = this.state;
-    var {from, to, total} = author_news;
+    var { loading, approval_news, search } = this.state;
+    var {from, to, total} = approval_news;
     var inShowing =
       "Showing " + from + " to " + to + " of " + total + " entries";
-    if (author_news.data) {
-      var list_news = author_news.data.map((news, index) => {
-        return <NewsItem news={news} key={index} />;
+    if (approval_news.data) {
+      var approval_list_news = approval_news.data.map((news, index) => {
+        return <ApprovalNewsItem news={news} key={index} />;
       });
     }
     return (
@@ -133,25 +131,23 @@ class News extends Component {
             <div className="row">
               <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                 <div className="page-header">
-                  <h2 className="pageheader-title">{"Bài viết cá nhân"}</h2>
+                  <h2 className="pageheader-title">{"Kiểm duyệt bài viết"}</h2>
                   <div className="page-breadcrumb">
                     <nav aria-label="breadcrumb">
                       <ol className="breadcrumb">
                         <li className="breadcrumb-item">
                           <Link to="/" className="breadcrumb-link">
-                            {"Trang chủ"}
+                            {"Thống kê"}
                           </Link>
                         </li>
                         <li className="breadcrumb-item">
-                          <a href="#" className="breadcrumb-link">
                             {"Quản lý"}
-                          </a>
                         </li>
                         <li
                           className="breadcrumb-item active"
                           aria-current="page"
                         >
-                          {"Bài viết cá nhân"}
+                          {"Kiểm duyệt bài viết"}
                         </li>
                       </ol>
                     </nav>
@@ -201,28 +197,6 @@ class News extends Component {
                                   aria-hidden="true"
                                 ></i>
                               </button>
-                            </div>
-                          </div>
-                          <div className="col-sm-12 col-md-6 col-lg-4 mb-2">
-                            <div
-                              id="DataTables_Table_0_filter"
-                              className="dataTables_filter"
-                            >
-                              <Link
-                                to="/management/news/create"
-                                data-toggle="tooltip"
-                                title={"Thêm bài viết"}
-                              >
-                                <i
-                                  className="fa fa-plus fa-2x"
-                                  style={{
-                                    float: "right",
-                                    marginTop: "6%",
-                                    color: "#00ff00",
-                                  }}
-                                  aria-hidden="true"
-                                ></i>
-                              </Link>
                             </div>
                           </div>
                         </div>
@@ -333,17 +307,6 @@ class News extends Component {
                                     aria-controls="DataTables_Table_0"
                                     rowSpan={1}
                                     colSpan={1}
-                                    aria-label="Position: activate to sort column ascending"
-                                    style={{ width: "10px" }}
-                                  >
-                                    Duyệt
-                                  </th>
-                                  <th
-                                    className="sorting"
-                                    tabIndex={0}
-                                    aria-controls="DataTables_Table_0"
-                                    rowSpan={1}
-                                    colSpan={1}
                                     aria-label="Start date: activate to sort column ascending"
                                     style={{ width: "6%" }}
                                   >
@@ -351,7 +314,7 @@ class News extends Component {
                                   </th>
                                 </tr>
                               </thead>
-                              <tbody>{list_news}</tbody>
+                              <tbody>{approval_list_news}</tbody>
                             </table>
                           </div>
                         </div>
@@ -363,7 +326,7 @@ class News extends Component {
                               role="status"
                               aria-live="polite"
                             >
-                              {inShowing}
+                               {inShowing}
                             </div>
                           </div>
                           <div className="col-sm-12 col-md-7">
@@ -393,26 +356,28 @@ class News extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    author_news: state.author_news,
+    approval_news: state.approval_news,
+    search: state.search,
   };
 };
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    getAuthorNews: (header) => {
-      return dispatch(getAuthorNewsRequest(header));
+    getApprovalNews: (header) => {
+      return dispatch(getApprovalNewsRequest(header));
     },
     nextPage: (header, pageNumber) => {
-      return dispatch(nextPageAuthorNewsRequest(header, pageNumber));
+      return dispatch(nextPageApprovalNewsRequest(header, pageNumber));
     },
-    searchAuthorNews: (header, keyword) => {
-      return dispatch(searchAuthorNewsRequest(header, keyword));
+    searchApprovalNews: (header, keyword) => {
+      return dispatch(searchApprovalNewsRequest(header, keyword));
     },
-    searchAuthorNewsNextPage: (header, keyword, pageNumber) => {
-      return dispatch(
-        searchNextPageAuthorNewsRequest(header, keyword, pageNumber)
-      );
+    unmountSearchKeyword: () =>{
+      return dispatch(unmountSearchKeyword())
     },
+    searchNextPage: (header, keyword, pageNumber) => {
+      return dispatch(searchNextPageApprovalNewsRequest(header, keyword, pageNumber))
+    }
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(News);
+export default connect(mapStateToProps, mapDispatchToProps)(ApprovalListNews);

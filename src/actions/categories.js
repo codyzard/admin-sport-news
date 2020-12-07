@@ -23,6 +23,42 @@ export const getAllCategories = (categories) => {
   };
 };
 
+export const searchCategoriesRequest = (keyword) => {
+  return (dispatch) => {
+    return callApi("api/admin/search_categories", "POST", {
+      keyword: keyword,
+    }).then((res) => {
+      if (res) {
+        return dispatch(searchCategories(res.data.search_categories, keyword));
+      }
+    });
+  };
+};
+
+export const searchNextPage = (keyword, pageNumber) => {
+  return (dispatch) => {
+    return callApi("api/admin/search_categories?page=" + pageNumber, "POST", {
+      keyword: keyword,
+    }).then((res) => {
+      if (res) return dispatch(searchCategories(res.data.search_categories, keyword));
+    });
+  };
+};
+
+export const searchCategories = (search_categories, keyword) => {
+  return {
+    type: types.SEARCH_CATEGORIES,
+    search_categories,
+    keyword,
+  };
+};
+
+export const unmountSearchKeyword = () => {
+  return {
+    type: types.UNMOUNT_SEARCH_KEYWORD
+  }
+}
+
 export const getParentCategoriesRequest = () => {
   return (dispatch) => {
     return callApi("api/admin/get_parent_category", "GET").then((res) => {
@@ -45,7 +81,7 @@ export const createCategoryRequest = (name, description, parent_id) => {
       parent_id: parent_id,
     }).then((res) => {
       if (res) {
-          return dispatch(createCategory(res.data));
+        return dispatch(createCategory(res.data));
       }
     });
   };
@@ -61,10 +97,10 @@ export const createCategory = (data) => {
 export const destroyCategoryRequest = (category_id) => {
   return (dispatch) => {
     return callApi("api/admin/destroy_category", "POST", {
-      category_id: category_id
+      category_id: category_id,
     }).then((res) => {
       if (res) {
-          return dispatch(destroyCategory(res.data));
+        return dispatch(destroyCategory(res.data));
       }
     });
   };
@@ -79,9 +115,9 @@ export const destroyCategory = (data) => {
 
 export const getCategoryDetailRequest = (category_id) => {
   return (dispatch) => {
-    return callApi("api/admin/categories/"+category_id, "GET").then((res) => {
+    return callApi("api/admin/categories/" + category_id, "GET").then((res) => {
       if (res) {
-          return dispatch(getCategoryDetail(res.data));
+        return dispatch(getCategoryDetail(res.data));
       }
     });
   };
@@ -93,7 +129,12 @@ export const getCategoryDetail = (category_detail) => {
   };
 };
 
-export const updateCategoryDetailRequest = (category_id, name, description, parent_id) => {
+export const updateCategoryDetailRequest = (
+  category_id,
+  name,
+  description,
+  parent_id
+) => {
   return (dispatch) => {
     return callApi("api/admin/update_category/", "POST", {
       category_id: category_id,
@@ -102,7 +143,7 @@ export const updateCategoryDetailRequest = (category_id, name, description, pare
       parent_id: parent_id,
     }).then((res) => {
       if (res) {
-          return dispatch(updateCategoryDetail(res.data));
+        return dispatch(updateCategoryDetail(res.data));
       }
     });
   };

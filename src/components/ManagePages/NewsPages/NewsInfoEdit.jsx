@@ -9,13 +9,12 @@ import "react-tagsinput/react-tagsinput.css";
 import {
   getChildCategoriesRequest,
   getTagsAndParentCategoriesRequest,
-  logout,
-  uploadNewsRequest,
+  updateNewsRequest,
 } from "../../../actions/index";
 import { CloudinaryImageUploadAdapter } from "ckeditor-cloudinary-uploader-adapter";
 import { isEmpty } from "lodash";
 import { ThreeDots } from "@agney/react-loading";
-class NewsForm extends Component {
+class NewsInfoEdit extends Component {
   state = {
     parent_categories: [],
     child_categories: [],
@@ -28,14 +27,26 @@ class NewsForm extends Component {
     tags: [],
     suggestions: [],
     hot_or_nor: 0,
-    loading: true,
   };
   async componentDidMount() {
+    var { news } = this.props.history.location.state;
+    var { title, summary, html_content, hot_or_nor, categories, tags } = news;
+    var { parent_categories, child_categories } = this.props;
     await this.props.getTagsAndParentCategories();
-    var { parent_categories } = this.props;
+    if (categories[0]) await this.props.getChildCategories(categories[0].id);
+    tags = tags.map((tag) => {
+      return tag.name;
+    });
     this.setState({
       parent_categories: parent_categories,
-      loading: false,
+      child_categories: child_categories,
+      parent_category: categories[0] ? categories[0].id : -1,
+      child_category: categories[1] ? categories[1].id : -1,
+      title: title,
+      summary: summary,
+      content: html_content,
+      hot_or_nor: hot_or_nor,
+      tags: tags,
     });
   }
   renderLoading = () => {
@@ -89,6 +100,7 @@ class NewsForm extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     var access_token = JSON.parse(localStorage.getItem("access_token"));
+    var { news } = this.props.history.location.state;
     const header = { Authorization: `Bearer ${access_token}` };
     var data = new FormData();
     var {
@@ -101,74 +113,54 @@ class NewsForm extends Component {
       tags,
       hot_or_nor,
     } = this.state;
+    console.log(parent_category);
     if (parent_category === -1 || child_category === -1) {
       this.alertError("Lỗi", "Vui lòng chọn danh mục đầy đủ");
-    } else if (isEmpty(title) || isEmpty(title_img.name)) {
-      this.alertError("Lỗi", "Chưa nhập tiêu dề hoặc ảnh tiêu đề rỗng");
+      return;
+    } else if (isEmpty(title)) {
+      this.alertError("Lỗi", "Chưa nhập tiêu dề");
+      return;
     } else if (isEmpty(summary)) {
       this.alertError("Lỗi", "Tóm tắt không được rỗng");
+      return;
     } else if (isEmpty(content)) {
       this.alertError("Lỗi", "Nội dung không được rỗng");
-    } else {
-      data.append("parent_category", parent_category);
-      data.append("child_category", child_category);
-      data.append("title", title);
-      data.append("title_img", title_img);
-      data.append("summary", summary);
-      data.append("content", content);
-      data.append("tags", [...tags]);
-      data.append("hot_or_nor", hot_or_nor);
-      this.setState({
-        loading: true,
-      });
-      await this.props.uploadNews(data, header).catch((err) => {
-        console.log(err);
-        this.alertError(
-          "Lỗi",
-          "Phiên hết hạn, vui lòng đăng xuất rồi đăng nhập lại"
-        );
-        this.setState({
-          loading: false,
-        });
-        // this.props.history.push('/login')
-      });
-      confirmAlert({
-        title: "Thông báo",
-        message: "Thêm thành công, thêm nữa không?",
-        buttons: [
-          {
-            label: "Có",
-            onClick: () => {
-              this.setState({
-                parent_category: -1,
-                child_category: -1,
-                title: "",
-                title_img: {},
-                summary: "",
-                content: "",
-                tags: [],
-                hot_or_nor: 0,
-              });
-            },
-          },
-          {
-            label: "Không",
-            onClick: () => this.props.history.goBack(),
-          },
-        ],
-      });
+      return;
     }
-  };
-  componentDidUpdate(preProps, preState) {
-    if (preProps.author_news !== this.props.author_news) {
+    data.append("parent_category", parent_category);
+    data.append("child_category", child_category);
+    data.append("title", title);
+    data.append("title_img", title_img);
+    data.append("summary", summary);
+    data.append("content", content);
+    data.append("tags", [...tags]);
+    data.append("hot_or_nor", hot_or_nor);
+    this.setState({
+      loading: true,
+    });
+    await this.props.updateNews(news.id, data, header).catch((err) => {
+      console.log(err);
+      this.alertError(
+        "Lỗi",
+        "Phiên hết hạn, vui lòng đăng xuất rồi đăng nhập lại"
+      );
       this.setState({
         loading: false,
       });
-    }
-  }
+    });
+    confirmAlert({
+      title: "Thông báo",
+      message: "Chỉnh sửa  thành công",
+      buttons: [
+        {
+          label: "Có",
+          onClick: () => this.props.history.goBack(),
+        },
+      ],
+    });
+  };
   render() {
     var {
-      loading,
       tags,
       parent_categories,
       child_categories,
@@ -178,6 +170,7 @@ class NewsForm extends Component {
       summary,
       title,
       hot_or_nor,
+      loading,
     } = this.state;
     var list_parent_categories = parent_categories.map((c, index) => {
       return (
@@ -293,6 +286,7 @@ class NewsForm extends Component {
                           config={{
                             extraPlugins: [imagePluginFactory],
                           }}
+                          toolbar={[imageConfiguration]}
                         />
                       </div>
                       <div className="form-group">
@@ -332,12 +326,6 @@ class NewsForm extends Component {
                       </div>
                       <div className="form-group float-right">
                         <button
-                          className="btn btn-warning mr-3 ml-3"
-                          type="reset"
-                        >
-                          {"Xóa toàn bộ"}
-                        </button>
-                        <button
                           className="btn btn-success"
                           type="submit"
                           onClick={(e) => this.onSubmit(e)}
@@ -362,7 +350,6 @@ const mapStateToProps = (state) => {
     parent_categories: state.parent_categories,
     child_categories: state.child_categories,
     suggestions: state.tags,
-    author_news: state.author_news,
   };
 };
 const mapDispatchToProps = (dispatch, props) => {
@@ -373,19 +360,37 @@ const mapDispatchToProps = (dispatch, props) => {
     getChildCategories: (parend_id) => {
       return dispatch(getChildCategoriesRequest(parend_id));
     },
-    uploadNews: (data, header) => {
-      return dispatch(uploadNewsRequest(data, header));
+    updateNews: (id, data, header) => {
+      return dispatch(updateNewsRequest(id, data, header));
     },
-    logout: () => {
-      return dispatch(logout());
-    }
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewsForm);
+export default connect(mapStateToProps, mapDispatchToProps)(NewsInfoEdit);
 
 function imagePluginFactory(editor) {
   editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
     return new CloudinaryImageUploadAdapter(loader, "dq4wah8x3", "bmwoqs1j", [160, 500, 630, 354 ]);
   };
+}
+
+const imageConfiguration = {
+  resizeOptions: [
+      {
+          name: 'imageResize:original',
+          value: null,
+          label: 'Original'
+      },
+      {
+          name: 'imageResize:50',
+          value: '50',
+          label: '50%'
+      },
+      {
+          name: 'imageResize:75',
+          value: '75',
+          label: '75%'
+      }
+  ],
+  toolbar: ['imageResize' ]
 }

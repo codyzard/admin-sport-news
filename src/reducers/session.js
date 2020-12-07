@@ -7,7 +7,7 @@ const session = (state = initialState, action) => {
       state = action.session;
       localStorage.setItem("user", JSON.stringify(state.user));
       localStorage.setItem("access_token", JSON.stringify(state.access_token));
-      return state;
+      return {...state};
     case types.LOGGED:
       let user = JSON.parse(localStorage.getItem("user"));
       let access_token = JSON.parse(localStorage.getItem("access_token"));
@@ -34,6 +34,7 @@ const session = (state = initialState, action) => {
         user: action.user
       }
       localStorage.setItem("user", JSON.stringify(action.user));
+      return state;
     default:
       return { ...state };
   }

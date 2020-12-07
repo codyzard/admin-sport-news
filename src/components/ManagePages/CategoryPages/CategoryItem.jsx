@@ -28,6 +28,7 @@ class CategoryItem extends Component {
         <td className="sorting_1">{category.id}</td>
         <td>{category.name}</td>
         <td>{category.description ? category.description : "N/A"}</td>
+        <td>{category.news_count}</td>
         <td>{category.parent_id ? category.parent_id : "cha"}</td>
         <td>
           <Link

@@ -12,7 +12,7 @@ class TopNavigation extends Component {
     super(props);
     var access_token = JSON.parse(localStorage.getItem("access_token"));
     var user = JSON.parse(localStorage.getItem("user"));
-    if (isEmpty(access_token) || isEmpty(user)) {
+    if (isEmpty(access_token)) {
       this.props.history.push("/login");
     }
   }
@@ -114,7 +114,7 @@ class TopNavigation extends Component {
       <div className="dashboard-header">
         <nav className="navbar navbar-expand-lg bg-white fixed-top">
           <Link className="navbar-brand" to="/">
-            Concept
+            STE-NEWS
           </Link>
           <button
             className="navbar-toggler"

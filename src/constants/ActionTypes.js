@@ -7,6 +7,7 @@ export const LOGOUT = "LOGOUT";
 export const UPDATE_INFO = "UPDATE_INFO";
 export const UPDATE_AVATAR = "UPDATE_AVATAR";
 
+//----------------ADMIN---------------
 
 //CATEGORIES
 export const GET_ALL_CATEGORIES = "GET_ALL_CATEGORIES";
@@ -15,21 +16,43 @@ export const CREATE_CATEGORY = "CREATE_CATEGORY";
 export const GET_CATEGORY_DETAIL = "GET_CATEGORY_DETAIL";
 export const UPDATE_CATEGORY = "UPDATE_CATEGORY";
 export const DESTROY_CATEGORY = "DESTROY_CATEGORY";
+export const SEARCH_CATEGORIES = "SEARCH_CATEGORIES";
+export const UNMOUNT_SEARCH_KEYWORD = "UNMOUNT_SEARCH_KEYWORD";
 
 
 //CONTROL
 export const LOADING = "LOADING";
 export const UNLOADING = "UNLOADING";
 
+//APPROVAL NEWS
+
+export const GET_APPROVAL_NEWS = "GET_APPROVAL_NEWS";
+export const APPROVAL_NEWS = "APPROVAL_NEWS";
+export const SEARCH_APPROVAL_NEWS = "SEARCH_APPROVAL_NEWS";
+
+//AUTHOR ACCOUNT
+export const GET_AUTHOR_ACCOUNT = 'GET_AUTHOR_ACCOUNT';
+export const BLOCK_OR_ACTIVE = 'BLOCK_OR_ACTIVE';
+
+
+
+//----------------ADMIN---------------
+
 
 //ERROR
 export const MANY_REQUEST = 'MANY_REQUEST';
 export const CLEAR_ERROR = 'CLEAR_ERROR';
 
-//----------------NEWS_AUTHOR---------------
 
+//----------------AUTHOR---------------
+
+//Manage news 
 export const GET_ALL_TAGS = 'GET_ALL_TAGS';
 export const PARENT_GET_CHILD_CATEGORIES = 'PARENT_GET_CHILD_CATEGORIES';
+export const GET_ALL_AUTHOR_NEWS = 'GET_ALL_AUTHOR_NEWS'
 
+export const AUTHOR_UPLOAD_NEWS = 'AUTHOR_UPLOAD_NEWS';
+export const AUTHOR_UPDATE_NEWS = 'AUTHOR_UPDATE_NEWS';
+export const SEARCH_NEWS = "SEARCH_NEWS";
 
-//----------------NEWS_AUTHOR---------------
+//----------------AUTHOR---------------

@@ -74,7 +74,7 @@ class CreateCategoryForm extends Component {
         buttons: [
           {
             label: "Có",
-            onClick: () => this.afterSave("Có")
+            onClick: () => {this.afterSave("Có"); this.onClearForm()}
           },
           {
             label: "Không",

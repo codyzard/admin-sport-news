@@ -2,24 +2,13 @@ import { isEmpty } from "lodash";
 import React, { Component } from "react";
 import Footer from "../CommonPages/Footer";
 class Homepage extends Component {
-  state = { access_token: null, user: null };
   componentDidMount() {
     var access_token = JSON.parse(localStorage.getItem("access_token"));
-    var user = JSON.parse(localStorage.getItem("user"));
-    if(isEmpty(access_token)){
-      this.props.history.push('/login')
-    }
-    else{
-      if (access_token && user) {
-        this.setState({
-          access_token: access_token,
-          user: user,
-        });
-      }
+    if (isEmpty(access_token)) {
+      this.props.history.push("/login");
     }
   }
   render() {
-    var { access_token } = this.state;
     return (
       <div className="dashboard-wrapper">
         <div className="dashboard-ecommerce">
