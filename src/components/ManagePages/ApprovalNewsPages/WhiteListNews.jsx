@@ -1,86 +1,78 @@
-import { isEmpty } from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import CategoryItem from "./CategoryItem";
-import {
-  getAllCategoriesRequest,
-  nextPage,
-  loading,
-  unloading,
-  searchCategoriesRequest,
-  searchNextPage,
-  unmountSearchKeyword,
-} from "../../../actions/index";
 import Pagination from "react-js-pagination";
 import { ThreeDots } from "@agney/react-loading";
-class Categories extends Component {
+import {
+  searchWhiteListNewsNextPageRequest,
+  getWhiteListNewsRequest,
+  searchWhiteListNewsRequest,
+  unmountSearchKeyword,
+} from "../../../actions";
+import { alertMessage } from "../../../utils/help_function";
+import { isEmpty } from "lodash";
+import WhiteListNewsItem from "./WhiteListNewsItem";
+class WhiteListNews extends Component {
   state = {
     access_token: null,
-    user: null,
-    categories: null,
     loading: true,
+    white_list_news: {},
     search: "",
   };
   async componentDidMount() {
     var access_token = JSON.parse(localStorage.getItem("access_token"));
-    var user = JSON.parse(localStorage.getItem("user"));
-    if (isEmpty(access_token)) {
-      this.props.history.push("/login");
-    } else {
-      if (!user.role) this.props.history.push("/notfound");
-      else if (access_token && user) {
-        await this.props.getAllCategories();
-        this.setState({
-          access_token: access_token,
-          user: user,
-        });
+    const header = { Authorization: `Bearer ${access_token}` };
+    await this.props.getWhiteListNews(header).catch((err) => {
+      if (!isEmpty(err.response)) {
+        if (err.response.status === 401) {
+          alertMessage(
+            "Lỗi",
+            "phiên đăng nhập hết hạn, vui lòng đăng nhập lại"
+          );
+        }
       }
-    }
+    });
+    this.setState({
+      white_list_news: this.props.white_list_news,
+      loading: false,
+    });
   }
-  componentWillUnmount(){
+  componentWillUnmount() {
     this.props.unmountSearchKeyword();
   }
-  static getDerivedStateFromProps(props, state) {
-    if (props.categories !== state.categories) {
-      return {
-        categories: props.categories,
+  nextPage = async (pageNumber) => {
+    let { search } = this.state;
+    this.setState({
+      loading: true,
+    });
+    var access_token = JSON.parse(localStorage.getItem("access_token"));
+    const header = { Authorization: `Bearer ${access_token}` };
+
+    await new Promise((r) => setTimeout(r, 200));
+    await this.props.searchNextPage(header, search, pageNumber).catch((err) => {
+      alertMessage(
+        "Lỗi",
+        "Phiên hết hạn, vui lòng đăng xuất rồi đăng nhập lại"
+      );
+      this.setState({
         loading: false,
+      });
+      // this.props.history.push('/login')
+    });
+  };
+  static getDerivedStateFromProps(props, state) {
+    if (props.white_list_news !== state.white_list_news) {
+      return {
+        white_list_news: props.white_list_news,
+        loading: false,
+        search: props.search,
       };
     }
     return null;
   }
-  componentDidUpdate(preProps, preState) {
-    if (preProps.categories !== this.props.categories) {
-      this.setState({
-        loading: false,
-      });
-    }
-  }
-  renderCategories = () => {
-    var { categories } = this.state;
-    var { data } = categories;
-    if (!isEmpty(data)) {
-      var list_category = data.map((c, index) => {
-        return <CategoryItem key={index} category={c} />;
-      });
-    }
-    return list_category;
-  };
-  nextPage = async (pageNumber) => {
-    let {search} = this.state;
-    this.setState({
-      loading: true,
-    });
-    await new Promise((r) => setTimeout(r, 200));
-    if (!isEmpty(search)) {
-      await this.props.searchNextPage(search, pageNumber);
-    }
-    else await this.props.nextPage(pageNumber);
-  };
   renderPagination = () => {
-    var { categories } = this.state;
-    var { current_page, per_page, total } = categories;
+    var { white_list_news } = this.state;
+    var { current_page, per_page, total } = white_list_news;
     return (
       <Pagination
         activePage={current_page}
@@ -108,14 +100,21 @@ class Categories extends Component {
   };
   onSearch = async () => {
     var { search } = this.state;
+    var access_token = JSON.parse(localStorage.getItem("access_token"));
+    const header = { Authorization: `Bearer ${access_token}` };
     this.setState({ loading: true });
-    await this.props.searchCategories(search);
+    await this.props.searchWhiteListNews(header, search)
   };
   render() {
-    var { total, from, to } = this.state.categories;
-    var { loading, search } = this.state;
+    var { loading, white_list_news, search } = this.state;
+    var { from, to, total } = white_list_news;
     var inShowing =
       "Showing " + from + " to " + to + " of " + total + " entries";
+    if (white_list_news.data) {
+      var white_list_news_data = white_list_news.data.map((news, index) => {
+        return <WhiteListNewsItem news={news} key={index} />;
+      });
+    }
     return (
       <div className="dashboard-wrapper">
         {loading === true ? (
@@ -128,13 +127,13 @@ class Categories extends Component {
             <div className="row">
               <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                 <div className="page-header">
-                  <h2 className="pageheader-title">{"Danh mục"}</h2>
+                  <h2 className="pageheader-title">{"Kiểm duyệt bài viết"}</h2>
                   <div className="page-breadcrumb">
                     <nav aria-label="breadcrumb">
                       <ol className="breadcrumb">
                         <li className="breadcrumb-item">
                           <Link to="/" className="breadcrumb-link">
-                            {"Trang chủ"}
+                            {"Thống kê"}
                           </Link>
                         </li>
                         <li className="breadcrumb-item">{"Quản lý"}</li>
@@ -142,7 +141,7 @@ class Categories extends Component {
                           className="breadcrumb-item active"
                           aria-current="page"
                         >
-                          {"Danh mục"}
+                          {"Kiểm duyệt bài viết"}
                         </li>
                       </ol>
                     </nav>
@@ -176,7 +175,7 @@ class Categories extends Component {
                                 <input
                                   type="search"
                                   className="form-control form-control-sm"
-                                  placeholder={"Nhập tên danh mục"}
+                                  placeholder={"Nhập tiêu đề, tóm tắt"}
                                   aria-controls="DataTables_Table_0"
                                   onKeyDown={(e) => this.onEnter(e)}
                                   onChange={(e) => this.onChange(e)}
@@ -192,28 +191,6 @@ class Categories extends Component {
                                   aria-hidden="true"
                                 ></i>
                               </button>
-                            </div>
-                          </div>
-                          <div className="col-sm-12 col-md-6 col-lg-4 mb-2">
-                            <div
-                              id="DataTables_Table_0_filter"
-                              className="dataTables_filter"
-                            >
-                              <Link
-                                to="/management/categories/create"
-                                data-toggle="tooltip"
-                                title={"Thêm danh mục"}
-                              >
-                                <i
-                                  className="fa fa-plus fa-2x"
-                                  style={{
-                                    float: "right",
-                                    marginTop: "6%",
-                                    color: "#00ff00",
-                                  }}
-                                  aria-hidden="true"
-                                ></i>
-                              </Link>
                             </div>
                           </div>
                         </div>
@@ -235,9 +212,33 @@ class Categories extends Component {
                                     colSpan={1}
                                     aria-sort="ascending"
                                     aria-label="Name: activate to sort column descending"
-                                    style={{ width: "100px" }}
+                                    style={{ width: "30px" }}
                                   >
                                     ID
+                                  </th>
+                                  <th
+                                    className="sorting_asc"
+                                    tabIndex={0}
+                                    aria-controls="DataTables_Table_0"
+                                    rowSpan={1}
+                                    colSpan={1}
+                                    aria-sort="ascending"
+                                    aria-label="Name: activate to sort column descending"
+                                    style={{ width: "200px" }}
+                                  >
+                                    Tiêu đề
+                                  </th>
+                                  <th
+                                    className="sorting_asc"
+                                    tabIndex={0}
+                                    aria-controls="DataTables_Table_0"
+                                    rowSpan={1}
+                                    colSpan={1}
+                                    aria-sort="ascending"
+                                    aria-label="Name: activate to sort column descending"
+                                    style={{ width: "200px" }}
+                                  >
+                                    Ảnh tiêu đề
                                   </th>
                                   <th
                                     className="sorting"
@@ -248,7 +249,7 @@ class Categories extends Component {
                                     aria-label="Position: activate to sort column ascending"
                                     style={{ width: "200px" }}
                                   >
-                                    Tên danh mục
+                                    Tóm tắt
                                   </th>
                                   <th
                                     className="sorting"
@@ -256,10 +257,10 @@ class Categories extends Component {
                                     aria-controls="DataTables_Table_0"
                                     rowSpan={1}
                                     colSpan={1}
-                                    aria-label="Office: activate to sort column ascending"
-                                    style={{ width: "250px" }}
+                                    aria-label="Position: activate to sort column ascending"
+                                    style={{ width: "300px" }}
                                   >
-                                    Mô tả
+                                    Nội dung
                                   </th>
                                   <th
                                     className="sorting"
@@ -267,10 +268,10 @@ class Categories extends Component {
                                     aria-controls="DataTables_Table_0"
                                     rowSpan={1}
                                     colSpan={1}
-                                    aria-label="Office: activate to sort column ascending"
+                                    aria-label="Position: activate to sort column ascending"
                                     style={{ width: "100px" }}
                                   >
-                                    Số bài viết
+                                    Nhãn
                                   </th>
                                   <th
                                     className="sorting"
@@ -278,10 +279,32 @@ class Categories extends Component {
                                     aria-controls="DataTables_Table_0"
                                     rowSpan={1}
                                     colSpan={1}
-                                    aria-label="Age: activate to sort column ascending"
+                                    aria-label="Position: activate to sort column ascending"
+                                    style={{ width: "150px" }}
+                                  >
+                                    Danh mục
+                                  </th>
+                                  <th
+                                    className="sorting"
+                                    tabIndex={0}
+                                    aria-controls="DataTables_Table_0"
+                                    rowSpan={1}
+                                    colSpan={1}
+                                    aria-label="Position: activate to sort column ascending"
+                                    style={{ width: "10px" }}
+                                  >
+                                    Tin nóng
+                                  </th>
+                                  <th
+                                    className="sorting"
+                                    tabIndex={0}
+                                    aria-controls="DataTables_Table_0"
+                                    rowSpan={1}
+                                    colSpan={1}
+                                    aria-label="Position: activate to sort column ascending"
                                     style={{ width: "100px" }}
                                   >
-                                    ID Danh mục cha
+                                    Trạng thái
                                   </th>
                                   <th
                                     className="sorting"
@@ -290,13 +313,15 @@ class Categories extends Component {
                                     rowSpan={1}
                                     colSpan={1}
                                     aria-label="Start date: activate to sort column ascending"
-                                    style={{ width: "15%" }}
+                                    style={{ width: "6%" }}
                                   >
                                     Hành động
                                   </th>
                                 </tr>
                               </thead>
-                              <tbody>{this.renderCategories()}</tbody>
+                              <tbody>
+                                  {white_list_news_data}
+                              </tbody>
                             </table>
                           </div>
                         </div>
@@ -338,35 +363,25 @@ class Categories extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    categories: state.categories,
-    loading: state.loading,
+    white_list_news: state.white_list_news,
     search: state.search,
   };
 };
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    getAllCategories: () => {
-      return dispatch(getAllCategoriesRequest());
-    },
-    nextPage: (pageNumber) => {
-      return dispatch(nextPage(pageNumber));
-    },
-    loading: () => {
-      return dispatch(loading());
-    },
-    unloading: () => {
-      return dispatch(unloading());
-    },
-    searchCategories: (keyword) => {
-      return dispatch(searchCategoriesRequest(keyword));
-    },
-    searchNextPage: (keyword, pageNumber) => {
-      return dispatch(searchNextPage(keyword, pageNumber));
+    getWhiteListNews: (header) => {
+      return dispatch(getWhiteListNewsRequest(header));
     },
     unmountSearchKeyword: () => {
       return dispatch(unmountSearchKeyword());
+    },
+    searchNextPage: (header, search, pageNumber)=> {
+        return dispatch(searchWhiteListNewsNextPageRequest(header, search, pageNumber));
+    },
+    searchWhiteListNews: (header, keyword) => {
+        return dispatch(searchWhiteListNewsRequest(header, keyword));
     }
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Categories);
+export default connect(mapStateToProps, mapDispatchToProps)(WhiteListNews);

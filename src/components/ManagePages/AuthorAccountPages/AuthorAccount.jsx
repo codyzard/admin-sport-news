@@ -3,8 +3,14 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import Pagination from "react-js-pagination";
 import { ThreeDots } from "@agney/react-loading";
-import {getAuthorAccountRequest} from "../../../actions";
+import {
+  getAuthorAccountRequest,
+  searchAuthorAccountNextPageRequest,
+  searchAuthorAccountRequest,
+  unmountSearchKeyword,
+} from "../../../actions";
 import AuthorAccountItem from "./AuthorAccountItem";
+import { alertMessage } from "../../../utils/help_function";
 class AuthorAccount extends Component {
   state = {
     access_token: null,
@@ -20,7 +26,7 @@ class AuthorAccount extends Component {
     this.setState({ loading: false, author_account });
   }
   componentWillUnmount() {
-    // this.props.unmountSearchKeyword();
+    this.props.unmountSearchKeyword();
   }
   nextPage = async (pageNumber) => {
     let { search } = this.state;
@@ -29,7 +35,6 @@ class AuthorAccount extends Component {
     });
     var access_token = JSON.parse(localStorage.getItem("access_token"));
     const header = { Authorization: `Bearer ${access_token}` };
-
     await new Promise((r) => setTimeout(r, 200));
     await this.props.searchNextPage(header, search, pageNumber).catch((err) => {
       console.log(err);
@@ -40,7 +45,6 @@ class AuthorAccount extends Component {
       this.setState({
         loading: false,
       });
-      // this.props.history.push('/login')
     });
   };
   static getDerivedStateFromProps(props, state) {
@@ -48,26 +52,26 @@ class AuthorAccount extends Component {
       return {
         author_account: props.author_account,
         loading: false,
-        // search: props.search,
+        search: props.search,
       };
     }
     return null;
   }
   renderPagination = () => {
-    // var { approval_news } = this.state;
-    // var { current_page, per_page, total } = approval_news;
-    // return (
-    //   <Pagination
-    //     activePage={current_page}
-    //     totalItemsCount={total}
-    //     itemsCountPerPage={per_page}
-    //     onChange={(pageNumber) => this.nextPage(pageNumber)}
-    //     itemClass="page-item"
-    //     linkClass="page-link"
-    //     firstPageText={"Đầu"}
-    //     lastPageText={"Cuối"}
-    //   />
-    // );
+    var { author_account } = this.state;
+    var { current_page, per_page, total } = author_account;
+    return (
+      <Pagination
+        activePage={current_page}
+        totalItemsCount={total}
+        itemsCountPerPage={per_page}
+        onChange={(pageNumber) => this.nextPage(pageNumber)}
+        itemClass="page-item"
+        linkClass="page-link"
+        firstPageText={"Đầu"}
+        lastPageText={"Cuối"}
+      />
+    );
   };
   onEnter = async (e) => {
     if (e.keyCode === 13) {
@@ -86,23 +90,23 @@ class AuthorAccount extends Component {
     var access_token = JSON.parse(localStorage.getItem("access_token"));
     const header = { Authorization: `Bearer ${access_token}` };
     this.setState({ loading: true });
-    await this.props.searchApprovalNews(header, search).catch((err) => {
-      console.log(err);
-      this.alertError(
-        "Lỗi",
-        "Phiên hết hạn, vui lòng đăng xuất rồi đăng nhập lại"
-      );
-      this.setState({
-        loading: false,
-      });
-      // this.props.history.push('/login')
+    await this.props.searchAuthorAccount(header, search).catch((err) => {
+      this.setState({ loading: false });
+      if (err.response.status === 401) {
+        alertMessage(
+          "Lỗi",
+          "Phiên hết hạn, vui lòng đăng xuất rồi đăng nhập lại"
+        );
+      } else {
+        alertMessage("Lỗi", "Vui lòng thử lại sau");
+      }
     });
   };
   render() {
     var { loading, search, author_account } = this.state;
     var { from, to, total } = author_account;
-    // var inShowing =
-    //   "Showing " + from + " to " + to + " of " + total + " entries";
+    var inShowing =
+      "Showing " + from + " to " + to + " of " + total + " entries";
     if (author_account.data) {
       var list_author_account = author_account.data.map((user, index) => {
         return <AuthorAccountItem user={user} key={index} />;
@@ -186,6 +190,28 @@ class AuthorAccount extends Component {
                               </button>
                             </div>
                           </div>
+                          <div className="col-sm-12 col-md-6 col-lg-4 mb-2">
+                            <div
+                              id="DataTables_Table_0_filter"
+                              className="dataTables_filter"
+                            >
+                              <Link
+                                to="/management/author_account/register"
+                                data-toggle="tooltip"
+                                title={"Tạo tài khoản tác giả"}
+                              >
+                                <i
+                                  className="fa fa-plus fa-2x"
+                                  style={{
+                                    float: "right",
+                                    marginTop: "6%",
+                                    color: "#00ff00",
+                                  }}
+                                  aria-hidden="true"
+                                ></i>
+                              </Link>
+                            </div>
+                          </div>
                         </div>
                         <div className="row mb-2">
                           <div className="col-sm-12">
@@ -205,9 +231,21 @@ class AuthorAccount extends Component {
                                     colSpan={1}
                                     aria-sort="ascending"
                                     aria-label="Name: activate to sort column descending"
-                                    style={{ width: "200px" }}
+                                    style={{ width: "175px" }}
                                   >
                                     Tên
+                                  </th>
+                                  <th
+                                    className="sorting_asc"
+                                    tabIndex={0}
+                                    aria-controls="DataTables_Table_0"
+                                    rowSpan={1}
+                                    colSpan={1}
+                                    aria-sort="ascending"
+                                    aria-label="Name: activate to sort column descending"
+                                    style={{ width: "175px" }}
+                                  >
+                                    Email
                                   </th>
                                   <th
                                     className="sorting_asc"
@@ -240,7 +278,7 @@ class AuthorAccount extends Component {
                                     rowSpan={1}
                                     colSpan={1}
                                     aria-label="Position: activate to sort column ascending"
-                                    style={{ width: "200px" }}
+                                    style={{ width: "125px" }}
                                   >
                                     Ngày sinh
                                   </th>
@@ -313,7 +351,7 @@ class AuthorAccount extends Component {
                               role="status"
                               aria-live="polite"
                             >
-                              {/* {inShowing} */}
+                              {inShowing}
                             </div>
                           </div>
                           <div className="col-sm-12 col-md-7">
@@ -321,7 +359,7 @@ class AuthorAccount extends Component {
                               className="dataTables_paginate paging_simple_numbers"
                               id="DataTables_Table_0_paginate"
                             >
-                              {/* {this.renderPagination()} */}
+                              {this.renderPagination()}
                             </div>
                           </div>
                         </div>
@@ -344,12 +382,24 @@ class AuthorAccount extends Component {
 const mapStateToProps = (state) => {
   return {
     author_account: state.author_account,
+    search: state.search,
   };
 };
 const mapDispatchToProps = (dispatch, props) => {
   return {
     getAuthorAccount: (header) => {
       return dispatch(getAuthorAccountRequest(header));
+    },
+    searchAuthorAccount: (header, keyword) => {
+      return dispatch(searchAuthorAccountRequest(header, keyword));
+    },
+    searchNextPage: (header, keyword, pageNumber) => {
+      return dispatch(
+        searchAuthorAccountNextPageRequest(header, keyword, pageNumber)
+      );
+    },
+    unmountSearchKeyword: () => {
+      return dispatch(unmountSearchKeyword());
     },
   };
 };

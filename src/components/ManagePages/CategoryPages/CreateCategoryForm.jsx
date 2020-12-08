@@ -101,7 +101,7 @@ class CreateCategoryForm extends Component {
               <ToastContainer />
               <div className="form-group float-right">
                 <button
-                  className="btn btn-default mr-3 ml-3"
+                  className="btn btn-default mr-3 ml-3 btn-trans"
                   onClick={this.props.history.goBack}
                   type="button"
                 >

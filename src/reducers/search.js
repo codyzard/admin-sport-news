@@ -9,6 +9,12 @@ const search = (state = initialState, action) => {
     case types.SEARCH_APPROVAL_NEWS:
       state = action.keyword;
       return state;
+    case types.SEARCH_AUTHOR_ACCOUNT:
+      state = action.keyword;
+      return state;
+    case types.SEARCH_WHITELIST_NEWS:
+      state = action.keyword;
+      return state;
     case types.UNMOUNT_SEARCH_KEYWORD:
       state = "";
       return state;

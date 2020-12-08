@@ -17,6 +17,8 @@ import NewsForm from "../ManagePages/NewsPages/NewsForm";
 import NewsInfoEdit from "../ManagePages/NewsPages/NewsInfoEdit";
 import ApprovalListNews from "../ManagePages/ApprovalNewsPages/ApprovalListNews";
 import AuthorAccount from "../ManagePages/AuthorAccountPages/AuthorAccount";
+import RegisterAuthorAccount from "../ManagePages/AuthorAccountPages/RegisterAuthorAccount";
+import WhiteListNews from "../ManagePages/ApprovalNewsPages/WhiteListNews";
 class Main extends Component {
   state = {
     username: "",
@@ -41,7 +43,9 @@ class Main extends Component {
             <Route path="/management/news/create" component={NewsForm} />
             <Route path="/management/news/:id" component={NewsInfoEdit} />
             <Route path="/management/news" component={News} />
+            <Route path="/management/white_list_news" component={WhiteListNews} />
             <Route path="/management/approval_news" component={ApprovalListNews} />
+            <Route path="/management/author_account/register" component={RegisterAuthorAccount} />
             <Route path="/management/author_account" component={AuthorAccount} />
             <Route path="/profile/update" component={UpdateProfile}/>
             <Route path="/profile" component={Profile}/>

@@ -32,7 +32,7 @@ class AuthorAccountItem extends Component {
   };
   render() {
     var { user } = this.props;
-    var { name, role, user_info, activation } = user;
+    var { name, email, role, user_info, activation } = user;
     if (!isEmpty(user_info))
       var { avatar_src, gender, birthday, address, phone } = user_info;
 
@@ -50,13 +50,13 @@ class AuthorAccountItem extends Component {
           color: " #00ff00",
         };
         break;
-      case 2:
       default:
         break;
     }
     return (
       <tr role="row">
         <td>{name}</td>
+        <td>{email}</td>
         <td>
           <img
             style={{ width: "100px" }}

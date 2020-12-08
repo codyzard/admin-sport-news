@@ -5,6 +5,7 @@ import { loading, loginRequest } from "../../actions/index";
 import { Puff } from "@agney/react-loading";
 import { confirmAlert } from "react-confirm-alert"; // Import
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
+import { alertMessage, validateEmail } from "../../utils/help_function";
 class Login extends Component {
   state = {
     email: "",
@@ -22,30 +23,46 @@ class Login extends Component {
   onSubmit = async (e) => {
     e.preventDefault();
     var { email, password } = this.state;
-    this.setState({loading: true});
+    this.setState({ loading: true });
+    if (!validateEmail(email)) {
+      alertMessage("Lỗi", "Email không hợp lệ");
+      this.setState({ loading: false });
+      return;
+    }
     await this.props.login(email, password).catch((err) => {
-      this.setState({loading: false});
-      if (err.response.data.error === "Account is block") {
-        confirmAlert({
-          title: "Lỗi",
-          message: "Tài khoản đã bị khóa",
-          buttons: [
-            {
-              label: "OK",
-            },
-          ],
-        });
-      }
-      else if (err.response.status === 401){
-        confirmAlert({
-          title: "Người dùng không hợp lệ",
-          message: "Sai email hoặc mật khẩu",
-          buttons: [
-            {
-              label: "OK",
-            },
-          ],
-        });
+      this.setState({ loading: false });
+      if (!isEmpty(err.response)) {
+        if (err.response.data.error === "Account is block") {
+          confirmAlert({
+            title: "Lỗi",
+            message: "Tài khoản đã bị khóa",
+            buttons: [
+              {
+                label: "OK",
+              },
+            ],
+          });
+        } else if (err.response.status === 422) {
+          confirmAlert({
+            title: "Lỗi",
+            message: "Tài khoản đã bị khóa",
+            buttons: [
+              {
+                label: "OK",
+              },
+            ],
+          });
+        } else if (err.response.status === 401) {
+          confirmAlert({
+            title: "Người dùng không hợp lệ",
+            message: "Sai email hoặc mật khẩu",
+            buttons: [
+              {
+                label: "OK",
+              },
+            ],
+          });
+        }
       }
     });
     if (!isEmpty(this.props.session)) {
@@ -54,7 +71,7 @@ class Login extends Component {
   };
   componentDidMount() {
     var access_token = JSON.parse(localStorage.getItem("access_token"));
-    this.setState({loading: false})
+    this.setState({ loading: false });
     if (access_token) {
       this.props.history.push("/");
     }
@@ -63,7 +80,7 @@ class Login extends Component {
     return <Puff color="#00BFFF" height="600" width="100%" />;
   };
   formLogin = () => {
-    let { loading } = this.state;
+    let { loading, email, password } = this.state;
     return (
       <div className="splash-container">
         {loading ? (
@@ -84,6 +101,7 @@ class Login extends Component {
             <div className="card-body">
               <form>
                 <div className="form-group">
+                  <label>Email</label>
                   <input
                     className="form-control form-control-lg"
                     name="email"
@@ -91,16 +109,19 @@ class Login extends Component {
                     type="email"
                     placeholder="Email"
                     autoComplete="off"
+                    defaultValue={email}
                     onChange={(e) => this.onChangeInput(e)}
                   />
                 </div>
                 <div className="form-group">
+                  <label>Mật khẩu</label>
                   <input
                     className="form-control form-control-lg"
                     name="password"
                     id="password"
                     type="password"
                     placeholder="Password"
+                    defaultValue={password}
                     onChange={(e) => this.onChangeInput(e)}
                   />
                 </div>

@@ -103,9 +103,9 @@ class LeftNavigation extends Component {
                 </Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="dashboard-finance.html">
+                <Link className="nav-link" to="/management/white_list_news">
                   {"Bài viết"}
-                </a>
+                </Link>
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/management/author_account">

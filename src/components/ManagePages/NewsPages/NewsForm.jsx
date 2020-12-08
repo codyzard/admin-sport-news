@@ -15,6 +15,7 @@ import {
 import { CloudinaryImageUploadAdapter } from "ckeditor-cloudinary-uploader-adapter";
 import { isEmpty } from "lodash";
 import { ThreeDots } from "@agney/react-loading";
+import { alertMessage } from "../../../utils/help_function";
 class NewsForm extends Component {
   state = {
     parent_categories: [],
@@ -122,15 +123,17 @@ class NewsForm extends Component {
         loading: true,
       });
       await this.props.uploadNews(data, header).catch((err) => {
-        console.log(err);
-        this.alertError(
-          "Lỗi",
-          "Phiên hết hạn, vui lòng đăng xuất rồi đăng nhập lại"
-        );
-        this.setState({
-          loading: false,
-        });
-        // this.props.history.push('/login')
+        this.setState({ loading: false });
+        if(!isEmpty(err.response)){
+          if (err.response.status === 401) {
+            alertMessage(
+              "Lỗi",
+              "Phiên hết hạn, vui lòng đăng xuất rồi đăng nhập lại"
+            );
+          } else {
+            alertMessage("Lỗi", "Vui lòng thử lại sau");
+          }
+        }
       });
       confirmAlert({
         title: "Thông báo",
@@ -203,7 +206,7 @@ class NewsForm extends Component {
               <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                 <div className="form-group float-right">
                   <button
-                    className="btn btn-default mr-3 ml-3"
+                    className="btn btn-default mr-3 ml-3 btn-trans"
                     onClick={this.props.history.goBack}
                     type="button"
                   >
@@ -378,7 +381,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     logout: () => {
       return dispatch(logout());
-    }
+    },
   };
 };
 
@@ -386,6 +389,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(NewsForm);
 
 function imagePluginFactory(editor) {
   editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
-    return new CloudinaryImageUploadAdapter(loader, "dq4wah8x3", "bmwoqs1j", [160, 500, 630, 354 ]);
+    return new CloudinaryImageUploadAdapter(loader, "dq4wah8x3", "bmwoqs1j", [
+      160,
+      500,
+      630,
+      354,
+    ]);
   };
 }

@@ -12,6 +12,7 @@ import {
 } from "../../../actions";
 import {alertMessage} from '../../../utils/help_function'
 import ApprovalNewsItem from "./ApprovalNewsItem";
+import { isEmpty } from "lodash";
 class ApprovalListNews extends Component {
   state = {
     access_token: null,
@@ -23,8 +24,10 @@ class ApprovalListNews extends Component {
     var access_token = JSON.parse(localStorage.getItem("access_token"));
     const header = { Authorization: `Bearer ${access_token}` };
     await this.props.getApprovalNews(header).catch(err => {
-      if(err.response.status === 401){
-        alertMessage('Lỗi', 'phiên đăng nhập hết hạn, vui lòng đăng nhập lại');
+      if(!isEmpty(err.response)){
+        if(err.response.status === 401){
+          alertMessage('Lỗi', 'phiên đăng nhập hết hạn, vui lòng đăng nhập lại');
+        }
       }
     });
     this.setState({
@@ -99,13 +102,19 @@ class ApprovalListNews extends Component {
     const header = { Authorization: `Bearer ${access_token}` };
     this.setState({ loading: true });
     await this.props.searchApprovalNews(header, search).catch((err) => {
-      alertMessage(
-        "Lỗi",
-        "Phiên hết hạn, vui lòng đăng xuất rồi đăng nhập lại"
-      );
-      this.setState({
-        loading: false,
-      });
+      this.setState({loading: false});
+      if(err.response.status === 401){
+        alertMessage(
+          "Lỗi",
+          "Phiên hết hạn, vui lòng đăng xuất rồi đăng nhập lại"
+        );
+      }
+      else {
+        alertMessage(
+          "Lỗi",
+          "Vui lòng thử lại sau"
+        );
+      }
       // this.props.history.push('/login')
     });;
   };

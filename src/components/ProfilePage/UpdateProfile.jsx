@@ -44,7 +44,6 @@ class UpdateProfile extends Component {
   onChange = (e) => {
     var target = e.target;
     var { name, value } = target;
-    console.log(value);
     this.setState({
       [name]: value,
     });

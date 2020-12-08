@@ -77,7 +77,7 @@ class Profile extends Component {
     return (
       <div className="dashboard-wrapper">
         <div className="container-fluid dashboard-content">
-          <div className="row">
+          <div className="row" style={{marginTop: "8%"}}>
             {loading ? (
               <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                 <Puff color="#00BFFF" height="800" width="100%" />
@@ -92,6 +92,8 @@ class Profile extends Component {
                     style={{
                       marginLeft: "auto",
                       marginRight: "auto",
+                      width: "60%",
+                      height: "55%",
                       cursor: "pointer",
                     }}
                     onClick={() => this.fileInput.click()}
@@ -113,6 +115,7 @@ class Profile extends Component {
                           : "/images/default-avatar.png"
                       }
                       alt="avatar"
+                      style={{width: "100%", height: "100%"}}
                     />
                   </div>
                   <div className="name-profile mt-3">
