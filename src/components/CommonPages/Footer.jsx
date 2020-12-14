@@ -3,18 +3,18 @@ import React, { Component } from "react";
 class Footer extends Component {
   render() {
     return (
-      <div className="footer">
+      <div className="footer" style={{position: "fixed"}}>
         <div className="container-fluid">
           <div className="row">
             <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
-              Copyright © 2018 Concept. All rights reserved. Dashboard by{" "}
-              <a href="https://colorlib.com/wp/">Colorlib</a>.
+              Copyright © 2020 STE-News. Bản quyền bởi
+              <a href="https://fb.com/mrahn123">{" Lê Hoàng Tú "}</a>.
             </div>
             <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
               <div className="text-md-right footer-links d-none d-sm-block">
-                <a href="javascript: void(0);">About</a>
-                <a href="javascript: void(0);">Support</a>
-                <a href="javascript: void(0);">Contact Us</a>
+                <a href="https://fb.com/mrahn123">Thông tin</a>
+                <a href="https://fb.com/mrahn123">Hỗ trợ</a>
+                <a href="https://fb.com/mrahn123">Liên hệ</a>
               </div>
             </div>
           </div>
