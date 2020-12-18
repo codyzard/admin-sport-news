@@ -46,12 +46,14 @@ class Profile extends Component {
     })
     await this.props.updateAvatar(data, header).catch(err => {
       this.setState({loading: false})
-      if(err.response.status === 401){
+      console.log(err);
+      if(err.response && err.response.status === 401){
         this.alertError('Lỗi', 'phiên đăng nhập hết hạn, vui lòng đăng nhập lại');
       }
-      else if(err.response.status){
+      else if(err.response && err.response.status === 400){
         this.alertError('Lỗi', 'Server đang bận, vui lòng thử lại sau');
       }
+      else  this.alertError('Lỗi', 'Lỗi chưa xác định');
     });
    
   };

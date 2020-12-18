@@ -55,6 +55,12 @@ class LeftNavigation extends Component {
           <div id="submenu-1" className="collapse submenu" style={{}}>
             <ul className="nav flex-column">
               <li className="nav-item">
+                <Link className="nav-link" to="/">
+                  <i className="fas fa-chart-bar"></i>
+                  {"Thống kê"}
+                </Link>
+              </li>
+              <li className="nav-item">
                 <a
                   className="nav-link"
                   href="#"
@@ -63,6 +69,7 @@ class LeftNavigation extends Component {
                   data-target="#submenu-1-2"
                   aria-controls="submenu-1-2"
                 >
+                   <i className="fas fa-spinner fa-spin"></i> 
                   {"Đang phát triển"}
                 </a>
                 <div id="submenu-1-2" className="collapse submenu" style={{}}>
@@ -99,28 +106,33 @@ class LeftNavigation extends Component {
             <ul className="nav flex-column">
               <li className="nav-item">
                 <Link className="nav-link" to="/management/categories">
+                  <i className="fa fa-list-alt" aria-hidden="true"></i>
                   {"Danh mục"}
                 </Link>
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/management/white_list_news">
+                <i className="fas fa-newspaper"></i> 
                   {"Bài viết"}
                 </Link>
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/management/author_account">
+                  <i className="fa fa-user" aria-hidden="true"></i>
                   {"Tác giả"}
                 </Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="dashboard-sales.html">
-                  {"Nhãn"}
-                </a>
-              </li>
-              <li className="nav-item">
                 <Link to="/management/approval_news" className="nav-link">
+                  <i className="fa fa-check" aria-hidden="true"></i>
                   {"Kiểm duyệt bài viết"}
                 </Link>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" href="dashboard-sales.html">
+                  <i className="fas fa-tags"></i>
+                  {"Nhãn"}
+                </a>
               </li>
             </ul>
           </div>
