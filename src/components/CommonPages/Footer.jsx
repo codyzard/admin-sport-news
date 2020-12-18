@@ -3,7 +3,7 @@ import React, { Component } from "react";
 class Footer extends Component {
   render() {
     return (
-      <div className="footer" style={{position: "fixed"}}>
+      <div className="footer" style={{position: "absolute", bottom: "" }}>
         <div className="container-fluid">
           <div className="row">
             <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">

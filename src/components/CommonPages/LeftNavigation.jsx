@@ -69,7 +69,7 @@ class LeftNavigation extends Component {
                   data-target="#submenu-1-2"
                   aria-controls="submenu-1-2"
                 >
-                   <i className="fas fa-spinner fa-spin"></i> 
+                  <i className="fas fa-spinner fa-spin"></i>
                   {"Đang phát triển"}
                 </a>
                 <div id="submenu-1-2" className="collapse submenu" style={{}}>
@@ -112,7 +112,7 @@ class LeftNavigation extends Component {
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/management/white_list_news">
-                <i className="fas fa-newspaper"></i> 
+                  <i className="fas fa-newspaper"></i>
                   {"Bài viết"}
                 </Link>
               </li>
@@ -133,6 +133,12 @@ class LeftNavigation extends Component {
                   <i className="fas fa-tags"></i>
                   {"Nhãn"}
                 </a>
+              </li>
+              <li className="nav-item">
+                <Link to="/management/automation_update" className="nav-link">
+                  <i className="far fa-clock"></i>
+                  {"Lên lịch thu thập tin tức"}
+                </Link>
               </li>
             </ul>
           </div>

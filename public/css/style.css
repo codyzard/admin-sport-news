@@ -2536,7 +2536,7 @@ Pageheader
 input[type="radio"] {
   box-sizing: border-box;
   padding: 0;
-  display: none;
+  /* display: none; */
 }
 .product-description {
 }
@@ -7497,3 +7497,14 @@ input:-moz-placeholder { /* Firefox 18- */
   background-color: Transparent !important; 
 }
 /* REGISTER */
+
+/* CRON BUILDER */
+
+.cron-builder{
+  width: 100% !important; 
+}
+legend button{
+  width: 100%;
+}
+.cron-builder__row .cron-builder__row--inline button{
+}

@@ -7,22 +7,22 @@ import { getCategoryWithNewsRequest } from "../../actions";
 class Homepage extends Component {
   state = {
     category_with_news: [],
+    user: {},
   };
   async componentDidMount() {
     var access_token = JSON.parse(localStorage.getItem("access_token"));
+    var user = JSON.parse(localStorage.getItem("user"));
     if (isEmpty(access_token)) {
       this.props.history.push("/login");
     }
 
     await this.props.getCategoryWithNews();
-    this.setState({ category_with_news: this.props.category_with_news });
+    this.setState({ category_with_news: this.props.category_with_news, user: user });
   }
   render() {
-    var { category_with_news } = this.state;
-    console.log(category_with_news);
+    var { category_with_news, user } = this.state;
     var statistics_for_category_with_news = category_with_news.map(
       (cate, index) => {
-        console.log(cate.sub_cate);
         return (
           <Bar
             key={index}
@@ -63,13 +63,12 @@ class Homepage extends Component {
         <div className="dashboard-ecommerce">
           <div className="container-fluid dashboard-content ">
             <h1>Hệ thống tin tức thể thao STE</h1>
-            <div>{statistics_for_category_with_news}</div>
+            <div>{user && user.role === 1 ? statistics_for_category_with_news : ""}</div>
           </div>
         </div>
         {/* ============================================================== */}
         {/* footer */}
         {/* ============================================================== */}
-        <Footer />
         {/* ============================================================== */}
         {/* end footer */}
         {/* ============================================================== */}

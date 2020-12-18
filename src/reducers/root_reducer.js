@@ -17,6 +17,7 @@ import search from './search';
 import author_account from './author_account'
 import white_list_news from './white_list_news'
 import category_with_news from './category_with_news';
+import scheduler from './scheduler';
 const persistConfig = {
     key: 'root',
     storage: storage,
@@ -38,6 +39,7 @@ const root_reducer = combineReducers({
     author_account,
     white_list_news,
     category_with_news,
+    scheduler,
 });
 
 export default persistReducer(persistConfig, root_reducer);

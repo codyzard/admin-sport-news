@@ -45,6 +45,12 @@ export const PUSH_NEWS_TO_PENDING = 'PUSH_NEWS_TO_PENDING';
 
 export const CATEGORY_AMOUNT_OF_NEWS = 'CATEGORY_AMOUNT_OF_NEWS'
 
+
+//SCHEDULER
+
+export const SET_SCHEDULE = 'SET_SCHEDULE';
+export const GET_SCHEDULE = 'GET_SCHEDULE';
+
 //----------------ADMIN---------------
 
 
